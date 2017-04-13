@@ -14,6 +14,7 @@ if len(sys.argv)<6:
    print usage
    sys.exit(1)
 
+bTime = datetime.datetime.now()
 
 #--------------------------------------------------------------------------------------------------
 #IMPORT
@@ -163,4 +164,5 @@ while state in ['READY', 'RUNNING']:
   state = MyTry.status()['state']
   counter += 1
 print 'Done.', MyTry.status()
-
+print "Start time: ",bTime
+print "End time: ",datetime.datetime.now()
