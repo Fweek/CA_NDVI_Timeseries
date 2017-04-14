@@ -79,11 +79,6 @@ def getMeans(image):
   meansPolyMeans = meansPolyMeans.map(date)
   return meansPolyMeans
 
-#function to filter clouds out
-def filterClouds(image):
-  #We just want the clear(zero value) pixels
-  return image.updateMask(image.select('cfmask').eq(0))
-
 #function to remove geometry at the end
 def removeGeo(feature):
   return feature.select([".*"], None, False) #in python false needs to be False
@@ -126,10 +121,6 @@ tEnd = sys.argv[4] #'2016-12-31'
 if vMode == 'y':
   print "Loading and filtering image collection using %s to %s" % (tStart,tEnd)
 L7_SR_NDVI = L7_SR_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L7).select('nd')
-
-#Filter the clouds
-#L7_SR_NDVI = L7_SR_NDVI.map(filterClouds);
-
 
 if vMode == 'y':
   print "Calculating field averages"
