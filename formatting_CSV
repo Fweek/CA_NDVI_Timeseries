@@ -1,0 +1,38 @@
+import os, csv, sys
+
+#Set working directory
+os.chdir('C:\Users\Michael\Desktop\CSVprep')
+
+#Make a new directory for the output files if it does not already exist
+if not os.path.exists('Output'):
+    os.makedirs('Output',)
+
+# Loop through every file in the current working directory.
+for csvFilename in os.listdir('.'):
+    if not csvFilename.endswith('.csv'):
+        continue # skip non-csv files
+
+    print('Modifying ' + csvFilename + '...')
+
+    #
+    with open(csvFilename,"rb") as source:
+        rdr= csv.reader( source )
+        with open(os.path.join('Output', csvFilename),"wb") as result:
+            wtr= csv.writer( result )
+            #Keep only columns we want
+            for r in rdr:
+                wtr.writerow( (r[2], r[3], r[7]) )
+
+            # Replace null values with -9999
+            findlist = ['{nd=null}']
+            replacelist = ['-9999']
+
+            rep = dict(zip(findlist,replacelist))
+
+            def findReplace(find, replace):
+                s = source.read()
+                s = s.replace(find,replace)
+                result.write(s)
+
+            for item in findlist:
+                findReplace(item, rep[item])
