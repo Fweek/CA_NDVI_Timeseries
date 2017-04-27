@@ -1,4 +1,4 @@
-import os, csv, sys
+import os, csv, sys, datetime
 
 #Set working directory
 os.chdir('C:\Users\Michael\Desktop\CSVprep')
@@ -17,8 +17,19 @@ for csvFilename in os.listdir('.'):
     #
     with open(csvFilename,"rb") as source:
         rdr= csv.reader( source )
-        with open(os.path.join('Output', csvFilename),"wb") as result:
-            wtr= csv.writer( result )
+#        for row in rdr:#
+#            if rdr.line_num == 1:#
+#                continue  # skip first row aka header#
+#            csvRows.append(row)#
+
+    with open(os.path.join('Output', csvFilename),"wb") as result:
+        wtr= csv.writer( result )
+
+            #format date to days since 1980/1/1
+            for d in rdr
+                (datetime.datetime(d) - datetime.datetime(1980, 1, 1)).days()
+
+
             #Keep only columns we want
             for r in rdr:
                 wtr.writerow( (r[2], r[3], r[7]) )
@@ -36,3 +47,4 @@ for csvFilename in os.listdir('.'):
 
             for item in findlist:
                 findReplace(item, rep[item])
+
