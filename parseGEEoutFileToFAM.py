@@ -14,10 +14,10 @@ lines = csv.reader(fPtr)
 
 fPtr = None
 
-#Make output list
-output = []
+#Changed this from output to input 
+input = []
 
 #Cleaning up the input
 #Read in just the columns we want to process
 for l in lines:
-  output.append((l[2],l[3],l[5],l[7]))
+  input.append((l[2],l[3],l[5],l[7]))
