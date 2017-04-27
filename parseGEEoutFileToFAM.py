@@ -39,6 +39,10 @@ for l in input:
   print dtNum
 
   #clean up the ndvi column, need to get rid of nulls and 'nd' and just get the numbers
-
+  #cleanNdviNum = 
 
   #Push data to output list
+  output.append((l[0],dtNum,cleanNdviNum))
+
+#for l in output:
+#  
