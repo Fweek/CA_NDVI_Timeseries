@@ -58,6 +58,10 @@ for csvFilename in os.listdir('.'):
         output.append((l[0],dtNum,ndvi2))
     print output
 
+    #Write list to CSV
+    Results = open(os.path.join('Output', csvFilename),"wb")
+    wtr= csv.writer(Results)
 
-
+    for i in output:
+        wtr.writerow(i)
 
