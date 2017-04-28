@@ -1,4 +1,4 @@
-import os, csv, sys, datetime
+import sys,os,csv,datetime,string
 
 #Set working directory
 os.chdir('C:\Users\Michael\Desktop\CSVprep')
@@ -14,37 +14,50 @@ for csvFilename in os.listdir('.'):
 
     print('Modifying ' + csvFilename + '...')
 
-    #
-    with open(csvFilename,"rb") as source:
-        rdr= csv.reader( source )
-#        for row in rdr:#
-#            if rdr.line_num == 1:#
-#                continue  # skip first row aka header#
-#            csvRows.append(row)#
+    #Open the file
+    fPtr = open(csvFilename)
+    if fPtr is None:
+      print "Error opening %s " % csvFilename
+      sys.exit(1)
 
-    with open(os.path.join('Output', csvFilename),"wb") as result:
-        wtr= csv.writer( result )
+    #Read in the file using csv
+    rdr= csv.reader(fPtr)
+    fPtr = None
 
-            #format date to days since 1980/1/1
-            for d in rdr
-                (datetime.datetime(d) - datetime.datetime(1980, 1, 1)).days()
+    #Create container for input
+    input = []
+
+    #Keep only columns we want SIMS ID, Date, and NDVI
+    for l in rdr:
+      input.append((l[2],l[3],l[7]))
+
+    #Remove header
+    input = input[1::]
+    print input
+
+    #Create container for final output
+    output = []
+
+    #Changing date
+    for l in input:
+        #Grab only date column
+        dtStr = l[1]
+        #Parse out year, month, day. Ugly code but need to get this moving...
+        yr, mm, dd = dtStr[0:4], dtStr[5:7], dtStr[8:10]
+        #print yr, mm, dd #Debug
+        #Reformat date
+        dtNum = (datetime.datetime(int(yr), int(mm), int(dd)) - datetime.datetime(1980, 1, 1)).days
+        #print dtNum #Debug
+
+        #Replace {nd=null} with -9999
+        ndvi = l[2]
+        # print ndvi #Debug
+        ndvi2 = string.replace(ndvi, '{nd=null}', '-9999')
+        # print ndvi2 #Debug
+
+        output.append((l[0],dtNum,ndvi2))
+    print output
 
 
-            #Keep only columns we want
-            for r in rdr:
-                wtr.writerow( (r[2], r[3], r[7]) )
 
-            # Replace null values with -9999
-            findlist = ['{nd=null}']
-            replacelist = ['-9999']
-
-            rep = dict(zip(findlist,replacelist))
-
-            def findReplace(find, replace):
-                s = source.read()
-                s = s.replace(find,replace)
-                result.write(s)
-
-            for item in findlist:
-                findReplace(item, rep[item])
 
