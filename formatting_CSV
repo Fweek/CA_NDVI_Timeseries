@@ -1,4 +1,4 @@
-import sys,os,csv,datetime,string
+import sys,os,csv,datetime,string,numpy
 
 #Set working directory
 os.chdir('C:\Users\Michael\Desktop\CSVprep')
@@ -35,8 +35,8 @@ for csvFilename in os.listdir('.'):
     input = input[1::]
     print input
 
-    #Create container for final output
-    output = []
+    #Create temp container
+    temp = []
 
     #Changing date
     for l in input:
@@ -55,13 +55,65 @@ for csvFilename in os.listdir('.'):
         ndvi2 = string.replace(ndvi, '{nd=null}', '-9999')
         # print ndvi2 #Debug
 
-        output.append((l[0],dtNum,ndvi2))
-    print output
+        temp.append((l[0],dtNum,ndvi2))
+
+    temp.sort()
+    print temp
+
+    #Start creating matrix
+    #Find how many unique ids do we have?
+    simsIds = [i[0] for i in temp]
+    print simsIds
+
+    #Get all the unique simsids and count them
+    uniqueIds = numpy.unique(simsIds)
+    yDim = numpy.count_nonzero(uniqueIds)+1 #add one to account for row header
+    print "Number of unique sims ids %d" % yDim
+
+    #Find how many unique dates do we have?
+    allDates = [i[1] for i in temp]
+    print allDates
+
+    #Get all unique dates and count them
+    uniqueDT =  numpy.unique(allDates)
+    xDim = numpy.count_nonzero(uniqueDT)+1 #add one to account for column header
+    print "Number of unique dates %d" % xDim
+
+    #Create final output array
+    finalOutput = numpy.ones((yDim,xDim)) * -9999.0
+    print finalOutput
+
+    #Populate the header and the first column with date and SIMs ID respectively
+    finalOutput[0,1:xDim] = uniqueDT
+    finalOutput[1:yDim,0] = uniqueIds
+    print finalOutput
+
+
+
+
+
+    ###################STUCK HERE#################################
+    for id in uniqueIds: #for each unique ID in the list of SIMs IDs
+     for i in temp: #for that each unique ID in the input list
+       tempOutId = i[0] #look in the first column which is just SIMs IDs
+       if id == tempOutId: #check if the two IDs match
+          #if they match check the date and add to column
+
+
+          #Example: output[15,20] = ndvi
+       else:
+          continue
+
+
+
+
 
     #Write list to CSV
     Results = open(os.path.join('Output', csvFilename),"wb")
     wtr= csv.writer(Results)
 
-    for i in output:
+    for i in finalOutput:
         wtr.writerow(i)
+
+
 
