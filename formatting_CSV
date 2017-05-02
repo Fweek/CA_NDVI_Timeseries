@@ -88,22 +88,18 @@ for csvFilename in os.listdir('.'):
     finalOutput[1:yDim,0] = uniqueIds
     print finalOutput
 
-#fucntion that finds index number when provided a date and list
-def dateIndex(list, date):
-    l=zip(*list)[1]
-    print l.index(date)
+    #fucntion that finds index number when provided a date and list
+    def dateIndex(list, date):
+        l=zip(*list)[1]
+        print l.index(date)
 
 
 
-
+###########STUCK HERE#################
     for id in uniqueIds: #for each unique ID in the list of SIMs IDs
      for i in temp: #for that each unique ID in the input list
        tempOutId = i[0] #look in the first column which is just SIMs IDs
        if id == tempOutId: #check if the two IDs match
-          for d in temp #if they match check the date and add to column
-            for n in finalOutput
-                tempDate = n[0]
-                if d == tempDate
 
 
           #Example: output[15,20] = ndvi
