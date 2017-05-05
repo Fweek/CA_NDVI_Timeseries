@@ -122,18 +122,16 @@ for csvFilename in os.listdir('.'):
                         # Most dates won't match since the overpass can fall anywhere in between the 8 day period
                         #      Have to account for this to make the code work
                         # print "Dates match"
-                        ndvi = numpy.random()
                         print row, col, ndvi
                         finalOutput[row, col] = ndvi
 
     print finalOutput
 
-
     #Write list to CSV
     Results = open(os.path.join('Output', csvFilename),"wb")
     wtr= csv.writer(Results)
 
-    for i in tempOut:
+    for i in finalOutput:
         wtr.writerow(i)
 
 
