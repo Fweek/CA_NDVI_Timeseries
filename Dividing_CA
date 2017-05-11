@@ -1,41 +1,51 @@
-import ee, numpy, os, csv
+import ee, os, csv
 ee.Initialize()
 
 #Set working directory
 os.chdir('C:\Users\Michael\Desktop\CA_Divided')
 
+#Import feature collection
 fields = ee.FeatureCollection("ft:1GE0weDX4hKp_8Lt-MRySeDktJJ-gej7czjWPmzAx")
 
 #Coordinates for California box
-North = 42.02
-South = 32.40
-West = -124.453125
-East = -114.0985107421875
+North = 42.02 #northern-most point in CA
+South = 32.40 #southern-most point in CA
+West = -124.453125 #western-most point in CA
+East = -114.0985107421875 #eastern-most point in CA
 
-#Calc the distance between North and South points
+#Calculate the distance between North and South points
 difference = (North-South)
-print(difference)
 
 #How many sections should CA be divided into?
-divided = 10
+divided = 10 #we picked arbitrarily ten
 
+#Calculate how big each split should be
 splitsize = difference/divided
-print(splitsize)
 
-list = []
-countlist = []
-OutputList = numpy.ones((divided, 3)) * -9999
-print OutputList
+#Create coordinates for each split and add an ID column
+ID = []
+coordinates = []
 
-count = 0
-while count < 10:
-    list.append([West, South+(splitsize*(count+1)), East, South+(splitsize*(count))])
-    countlist.append(count+1)
-    count += 1
+for count in range(10):
+    coordinates.append([West, South+(splitsize*(count+1)), East, South+(splitsize*(count))])
+    ID.append(count+1)
 
-print list
-print countlist
+print ID
+print coordinates
 
-OutputList[:,0] = countlist
-OutputList[:,1] = list
-print OutputList
+#Count the number of fields in each split
+count = []
+for i in range(10):
+    Box = ee.Geometry.Rectangle(coordinates[(i)])
+    Box_fields = fields.filterBounds(Box)
+    print('Counting...')
+    count.append(Box_fields.size().getInfo())
+
+print count
+
+#Export to CSV
+with open('test.csv', 'wb') as f:
+    writer = csv.writer(f)
+    rows = zip(ID, coordinates, count)
+    for row in rows:
+        writer.writerow(row)
