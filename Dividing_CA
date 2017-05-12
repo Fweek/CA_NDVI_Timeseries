@@ -1,4 +1,4 @@
-import ee, os, csv
+import ee, os, csv, math
 ee.Initialize()
 
 #Set working directory
@@ -39,30 +39,40 @@ for i in range(divided):
     Box_fields = fields.filterBounds(Box)
     print('Counting...')
     numFields = Box_fields.size().getInfo() #this part takes awhile
-    maxFields = 15000
+    maxFields = float(15000)
     if numFields > maxFields:
+        print(' Re-spliting...')
         nWest = Coord[0]
         nNorth = Coord[1]
         nEast = Coord[2]
         nSouth = Coord[3]
-        nDifference = nNorth-nSouth
-        nDivided = maxFields/numFields
-        nSplitsize = nDifference/nDivided
+        nDifference = (nNorth-nSouth)
+        nDivided = int(math.ceil(numFields/maxFields))
+        nSplitsize = nDifference/(nDivided+1) #adding 1 because results might still have boxes with more than 15k fields.
         nCoordinates = []
-        for nCount in range(nDivided):
+        for nCount in range(nDivided+1):
             nCoordinates.append([nWest, nSouth+(nSplitsize*(nCount+1)), nEast, nSouth+(nSplitsize*(nCount))])
+            FinalCoordinates.append([nWest, nSouth+(nSplitsize*(nCount+1)), nEast, nSouth+(nSplitsize*(nCount))])
         nNumFeatures = []
-        for k in range(nDivided):
-            nCoord = nCoordinates[(i)]
+        for k in range(nDivided+1):
+            nCoord = nCoordinates[(k)]
             nBox = ee.Geometry.Rectangle(nCoord)
             nBox_fields = fields.filterBounds(nBox)
-            print('Recounting...')
-            nNumFeatures.append(nBox_fields.size().getInfo())  # this part takes awhile
-        FinalCoordinates.append(nCoordinates)
-        FinalFeatures.append(nNumFeatures)
+            print('   recount...')
+            FinalFeatures.append(nBox_fields.size().getInfo())  # this part takes awhile
     else:
         FinalFeatures.append(numFields)
         FinalCoordinates.append(Coord)
 
-print FinalFeatures
+ID = list(range(1, (len(FinalFeatures)+1)))
+
+print ID
 print FinalCoordinates
+print FinalFeatures
+
+#Export to CSV
+with open('test3.csv', 'wb') as f:
+    writer = csv.writer(f)
+    rows = zip(ID, FinalCoordinates, FinalFeatures)
+    for row in rows:
+        writer.writerow(row)
