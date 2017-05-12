@@ -23,29 +23,46 @@ divided = 10 #we picked arbitrarily ten
 splitsize = difference/divided
 
 #Create coordinates for each split and add an ID column
-ID = []
 coordinates = []
 
-for count in range(10):
+for count in range(divided):
     coordinates.append([West, South+(splitsize*(count+1)), East, South+(splitsize*(count))])
-    ID.append(count+1)
 
-print ID
 print coordinates
 
 #Count the number of fields in each split
-count = []
-for i in range(10):
-    Box = ee.Geometry.Rectangle(coordinates[(i)])
+FinalFeatures = []
+FinalCoordinates = []
+for i in range(divided):
+    Coord = coordinates[(i)]
+    Box = ee.Geometry.Rectangle(Coord)
     Box_fields = fields.filterBounds(Box)
     print('Counting...')
-    count.append(Box_fields.size().getInfo()) #this part takes awhile
+    numFields = Box_fields.size().getInfo() #this part takes awhile
+    maxFields = 15000
+    if numFields > maxFields:
+        nWest = Coord[0]
+        nNorth = Coord[1]
+        nEast = Coord[2]
+        nSouth = Coord[3]
+        nDifference = nNorth-nSouth
+        nDivided = maxFields/numFields
+        nSplitsize = nDifference/nDivided
+        nCoordinates = []
+        for nCount in range(nDivided):
+            nCoordinates.append([nWest, nSouth+(nSplitsize*(nCount+1)), nEast, nSouth+(nSplitsize*(nCount))])
+        nNumFeatures = []
+        for k in range(nDivided):
+            nCoord = nCoordinates[(i)]
+            nBox = ee.Geometry.Rectangle(nCoord)
+            nBox_fields = fields.filterBounds(nBox)
+            print('Recounting...')
+            nNumFeatures.append(nBox_fields.size().getInfo())  # this part takes awhile
+        FinalCoordinates.append(nCoordinates)
+        FinalFeatures.append(nNumFeatures)
+    else:
+        FinalFeatures.append(numFields)
+        FinalCoordinates.append(Coord)
 
-print count
-
-#Export to CSV
-with open('test.csv', 'wb') as f:
-    writer = csv.writer(f)
-    rows = zip(ID, coordinates, count)
-    for row in rows:
-        writer.writerow(row)
+print FinalFeatures
+print FinalCoordinates
