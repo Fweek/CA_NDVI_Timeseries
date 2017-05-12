@@ -39,7 +39,7 @@ for i in range(10):
     Box = ee.Geometry.Rectangle(coordinates[(i)])
     Box_fields = fields.filterBounds(Box)
     print('Counting...')
-    count.append(Box_fields.size().getInfo())
+    count.append(Box_fields.size().getInfo()) #this part takes awhile
 
 print count
 
