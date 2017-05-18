@@ -71,7 +71,7 @@ print FinalCoordinates
 print FinalFeatures
 
 #Export to CSV
-with open('test3.csv', 'wb') as f:
+with open('CA_divided.csv', 'wb') as f:
     writer = csv.writer(f)
     rows = zip(ID, FinalCoordinates, FinalFeatures)
     for row in rows:
