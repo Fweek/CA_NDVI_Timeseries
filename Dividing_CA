@@ -70,9 +70,25 @@ print ID
 print FinalCoordinates
 print FinalFeatures
 
+echo 'Exporting divides to CSV'
 #Export to CSV
 with open('CA_divided.csv', 'wb') as f:
     writer = csv.writer(f)
     rows = zip(ID, FinalCoordinates, FinalFeatures)
     for row in rows:
         writer.writerow(row)
+
+
+# !/bin/bash
+
+w = open("wrapper.txt","w")
+w.write("echo 'Creating wrapper'\n")
+w.write("mkdir outLogs\n")
+
+h = 1
+for i in FinalCoordinates:
+    w.write("time python CA_NDVI_Timeseries.py CA_L7_timeseries_group"+str(h)+" "+str(i)+" 2016-01-01 2016-12-31 n > ./outLogs/out_"+str(h)+".out 2>&1\n")
+    h += 1
+
+w.write("echo 'Done'\n")
+w.close()
