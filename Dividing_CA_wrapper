@@ -81,13 +81,19 @@ with open('CA_divided.csv', 'wb') as f:
 
 # !/bin/bash
 
-w = open("wrapper.txt","w")
+w = open("wrapper2.txt","w")
 w.write("echo 'Creating wrapper'\n")
 w.write("mkdir outLogs\n")
 
 h = 1
+Sensor = L7SR
+# Sensor = L8SR
+# Sensor = L7TOA
+# Sensor = L8TOA
+# Sensor = Sent2A
+
 for i in FinalCoordinates:
-    w.write("time python CA_NDVI_Timeseries.py CA_L7_timeseries_group"+str(h)+" "+str(i[0])+","+str(i[1])+","+str(i[2])+","+str(i[3])+" 2016-01-01 2016-12-31 n > ./outLogs/out_"+str(h)+".out 2>&1\n")
+    w.write("time python CA_NDVI_Timeseries.py "+Sensor+" CA_L7_timeseries_group"+str(h)+" "+str(i[0])+","+str(i[1])+","+str(i[2])+","+str(i[3])+" 2016-01-01 2016-12-31 n > ./outLogs/out_"+str(h)+".out 2>&1\n")
     h += 1
 
 w.write("echo 'Done'\n")
