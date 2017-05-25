@@ -19,8 +19,8 @@ bTime = datetime.datetime.now()
 # IMPORT Earth Engine objects
 L7_SR_IC = ee.ImageCollection("LANDSAT/LE7_SR") #Landsat7 Surface Reflectance Image Collection
 
-strSub = str.split(',')
-dividedArea = ee.Geometry.Rectangle([float(strSub[0]),float(strSub[1]),float(strSub[2]),float(strSub[3])))
+strSub = sys.argv[2].split(',')
+dividedArea = ee.Geometry.Rectangle([float(strSub[0]),float(strSub[1]),float(strSub[2]),float(strSub[3])])
 
 fields = ee.FeatureCollection("ft:1GE0weDX4hKp_8Lt-MRySeDktJJ-gej7czjWPmzAx") #All farm field boundaries as of June2016
 SIMS_ID_basemap = ee.Image("users/mhang/ca_30m_sid_poly_b5m_2014_12152016_ag_only")
