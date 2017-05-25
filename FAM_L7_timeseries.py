@@ -17,9 +17,7 @@ bTime = datetime.datetime.now()
 
 # --------------------------------------------------------------------------------------------------
 # IMPORT Earth Engine objects
-L7_SR_IC = ee.ImageCollection("LANDSAT/LE7_SR") #Landsat7 Surface Reflectance Image Collection
-
-strSub = sys.argv[2].split(',')
+strSub = sys.argv[3].split(',')
 dividedArea = ee.Geometry.Rectangle([float(strSub[0]),float(strSub[1]),float(strSub[2]),float(strSub[3])])
 
 fields = ee.FeatureCollection("ft:1GE0weDX4hKp_8Lt-MRySeDktJJ-gej7czjWPmzAx") #All farm field boundaries as of June2016
@@ -35,11 +33,27 @@ def getPixelValue(image):
         scale=30)
 
 
-# function to calculate NDVI
+# function to calculate NDVI for Landsat 7
 def calculateNDVI_L7(image):
     ndvi = image.normalizedDifference(['B4', 'B3'])
     # Filter the clouds
     ndvi = ndvi.updateMask(image.select('cfmask').eq(0))
+    prop = ['system:time_start']
+    return ndvi.copyProperties(image, prop)
+
+
+# function to calculate NDVI for Landsat 8
+def calculateNDVI_L8(image):
+    ndvi = image.normalizedDifference(['B5', 'B4'])
+    # Filter the clouds
+    ndvi = ndvi.updateMask(image.select('cfmask').eq(0))
+    prop = ['system:time_start']
+    return ndvi.copyProperties(image, prop)
+
+
+# function to calculate NDVI for Sentinel 2A (no cloudmasking yet)
+def calculateNDVI_Sent2A(image):
+    ndvi = image.normalizedDifference(['B8', 'B4'])
     prop = ['system:time_start']
     return ndvi.copyProperties(image, prop)
 
@@ -63,7 +77,7 @@ def removeGeo(feature):
     return feature.select([".*"], None, False)  # in python false needs to be False
 
 
-vMode = sys.argv[5]
+vMode = sys.argv[6]
 if vMode == 'y':
     print "Verbose mode on"
 
@@ -90,19 +104,34 @@ fields_simplified = fields_SIMS.map(simplify)
 # Set temporal and spatial parameters
 outputPoly = fields_simplified
 clipPolygon = outputPoly  # ca_clip
-tStart = sys.argv[3]  # '2016-01-01'
-tEnd = sys.argv[4]  # '2016-12-31'
+tStart = sys.argv[4]  # '2016-01-01'
+tEnd = sys.argv[5]  # '2016-12-31'
 
 # Retrieve Image collection then filter,clip,calculate NDVI and filter clouds
 if vMode == 'y':
     print "Loading and filtering image collection using %s to %s" % (tStart, tEnd)
-L7_SR_NDVI = L7_SR_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L7).select('nd')
+if sys.argv[1] == 'L7SR':
+    L7_IC = ee.ImageCollection("LANDSAT/LE7_SR") #Landsat7 Surface Reflectance Image Collection
+    NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L7).select('nd')
+elif sys.argv[1] == 'L7TO':
+    L7_IC = ee.ImageCollection("LANDSAT/LE7_L1T_TOA_FMASK")
+    NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L7).select('nd')
+elif sys.argv[1] == 'L8SR':
+    L8_IC = ee.ImageCollection("LANDSAT/LC8_SR")
+    NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L8).select('nd')
+elif sys.argv[1] == 'L8TOA':
+    L8_IC = ee.ImageCollection("LANDSAT/LC8_L1T_TOA_FMASK")
+    NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L8).select('nd')
+elif sys.argv[1] == 'Sent2A':
+    Sent2A_IC = ee.ImageCollection("COPERNICUS/S2")
+    NDVI_IC = Sent2A_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_Sent2A).select('nd')
+
 
 if vMode == 'y':
     print "Calculating field averages"
 
 # Get the field averages
-means = L7_SR_NDVI.map(getMeans).flatten()
+means = NDVI_IC.map(getMeans).flatten()
 
 # remove geometry
 means = means.map(removeGeo)
@@ -110,7 +139,7 @@ means = means.map(removeGeo)
 # filter
 means = means.filter(ee.Filter.neq('mean', None)).sort('date')  # python uses none instead of null (JavaScript)
 
-fn = '%s_%d_polygons' % (sys.argv[1])
+fn = '%s_polygons' % (sys.argv[2])
 
 # Export to CSV
 taskParams = {
