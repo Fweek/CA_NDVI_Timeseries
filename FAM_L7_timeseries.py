@@ -16,18 +16,18 @@ if len(sys.argv) < 6:
 bTime = datetime.datetime.now()
 
 # --------------------------------------------------------------------------------------------------
-# IMPORT
-L7_SR_IC = ee.ImageCollection("LANDSAT/LE7_SR")
+# IMPORT Earth Engine objects
+L7_SR_IC = ee.ImageCollection("LANDSAT/LE7_SR") #Landsat7 Surface Reflectance Image Collection
 
-biggerArea = ee.Geometry.Rectangle(
-    [sys.argv[2]])
+strSub = str.split(',')
+dividedArea = ee.Geometry.Rectangle([float(strSub[0]),float(strSub[1]),float(strSub[2]),float(strSub[3])))
 
-fields = ee.FeatureCollection("ft:1GE0weDX4hKp_8Lt-MRySeDktJJ-gej7czjWPmzAx")
+fields = ee.FeatureCollection("ft:1GE0weDX4hKp_8Lt-MRySeDktJJ-gej7czjWPmzAx") #All farm field boundaries as of June2016
 SIMS_ID_basemap = ee.Image("users/mhang/ca_30m_sid_poly_b5m_2014_12152016_ag_only")
 
 # --------------------------------------------------------------------------------------------------
 # FUNCTIONS
-# function to calculate mode pixel value for each feature for SIMS ID
+# function to calculate mode pixel value for each feature. For attaching SIMS ID to each field
 def getPixelValue(image):
     return image.reduceRegions(
         collection=fields_filter,
@@ -70,8 +70,7 @@ if vMode == 'y':
 # --------------------------------------------------------------------------------------------------
 
 # Load the fields, this does not include SIMS ids
-fields_filter = fields.filterBounds(biggerArea)
-fields_filter = fields_filter.limit(fieldsNum)
+fields_filter = fields.filterBounds(dividedArea)
 
 # Add SIMS ID; intersected fields does not mess up SIMS ID
 fields_SIMS = getPixelValue(SIMS_ID_basemap)
@@ -109,7 +108,7 @@ means = L7_SR_NDVI.map(getMeans).flatten()
 means = means.map(removeGeo)
 
 # filter
-means = means.filter(ee.Filter.neq('mean', None)).sort('date')  # python uses none instead of null
+means = means.filter(ee.Filter.neq('mean', None)).sort('date')  # python uses none instead of null (JavaScript)
 
 fn = '%s_%d_polygons' % (sys.argv[1])
 
