@@ -70,7 +70,7 @@ print ID
 print FinalCoordinates
 print FinalFeatures
 
-echo 'Exporting divides to CSV'
+print 'Exporting divides to CSV'
 #Export to CSV
 with open('CA_divided.csv', 'wb') as f:
     writer = csv.writer(f)
