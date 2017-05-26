@@ -79,23 +79,17 @@ with open('CA_divided.csv', 'wb') as f:
     for row in rows:
         writer.writerow(row)
 
+Satellites = ['L7SR', 'L8SR', 'L7TOA', 'L8TOA', 'Sent2A']
+for sensor in Satellites:
+    w = open(sensor+"_wrapper.txt","w")
+    w.write("!/bin/bash\n")
+    w.write("echo 'Creating wrapper'\n")
+    w.write("mkdir outLogs\n")
 
-# !/bin/bash
+    h = 1
+    for i in FinalCoordinates:
+       w.write("time python CA_NDVI_Timeseries.py "+sensor+" CA_"+sensor+"_timeseries_group"+str(h)+" "+str(i[0])+","+str(i[1])+","+str(i[2])+","+str(i[3])+" 2016-01-01 2016-12-31 n > ./outLogs/out_"+str(h)+".out 2>&1 &\n")
+       h += 1
 
-w = open("wrapper.txt","w")
-w.write("echo 'Creating wrapper'\n")
-w.write("mkdir outLogs\n")
-
-h = 1
-Sensor = 'L7SR'
-# Sensor = 'L8SR'
-# Sensor = 'L7TOA'
-# Sensor = 'L8TOA'
-# Sensor = 'Sent2A'
-
-for i in FinalCoordinates:
-    w.write("time python CA_NDVI_Timeseries.py "+Sensor+" CA_"+Sensor+"_timeseries_group"+str(h)+" "+str(i[0])+","+str(i[1])+","+str(i[2])+","+str(i[3])+" 2016-01-01 2016-12-31 n > ./outLogs/out_"+str(h)+".out 2>&1\n")
-    h += 1
-
-w.write("echo 'Done'\n")
-w.close()
+    w.write("echo 'Done'\n")
+    w.close()
