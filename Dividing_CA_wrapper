@@ -40,7 +40,7 @@ for i in range(divided):
     Box_fields = fields.filterBounds(Box)
     print(' Counting...')
     numFields = Box_fields.size().getInfo() #this part takes awhile
-    maxFields = float(15000)
+    maxFields = float(10000)
     if numFields > maxFields:
         print('  Re-spliting...')
         nWest = Coord[0]
