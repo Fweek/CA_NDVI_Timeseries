@@ -78,17 +78,20 @@ with open('CA_divided.csv', 'wb') as f:
     rows = zip(ID, FinalCoordinates, FinalFeatures)
     for row in rows:
         writer.writerow(row)
+        
+startDate = "2014-01-01"
+endDate = "2014-12-31"
 
 Satellites = ['L7SR', 'L8SR', 'L7TOA', 'L8TOA', 'Sent2A']
 for sensor in Satellites:
-    w = open(sensor+"_wrapper.txt","w")
+    w = open(sensor+startDate+"_wrapper.txt","w")
     w.write("!/bin/bash\n")
     w.write("echo 'Creating wrapper'\n")
     w.write("mkdir outLogs\n")
 
     h = 1
     for i in FinalCoordinates:
-       w.write("time python CA_NDVI_Timeseries.py "+sensor+" CA_"+sensor+"_timeseries_group"+str(h)+" "+str(i[0])+","+str(i[1])+","+str(i[2])+","+str(i[3])+" 2016-01-01 2016-12-31 n > ./outLogs/out_"+str(h)+".out 2>&1 &\n")
+       w.write("time python CA_NDVI_Timeseries.py "+sensor+" CA_"+sensor+"_timeseries_group"+str(h)+" "+str(i[0])+","+str(i[1])+","+str(i[2])+","+str(i[3])+" "+startDate+" "+ endDate+" n > ./outLogs/out_"+str(h)+".out 2>&1 &\n")
        h += 1
 
     w.write("echo 'Done'\n")
