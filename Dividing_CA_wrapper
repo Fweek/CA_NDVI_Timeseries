@@ -84,7 +84,7 @@ endDate = "2014-12-31"
 
 Satellites = ['L7SR', 'L8SR', 'L7TOA', 'L8TOA', 'Sent2A']
 for sensor in Satellites:
-    w = open(sensor+startDate+"_wrapper.txt","w")
+    w = open(sensor+"_"+startDate+"_wrapper.txt","w")
     w.write("!/bin/bash\n")
     w.write("echo 'Creating wrapper'\n")
     w.write("mkdir outLogs\n")
