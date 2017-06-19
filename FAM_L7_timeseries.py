@@ -20,20 +20,12 @@ bTime = datetime.datetime.now()
 strSub = sys.argv[3].split(',')
 dividedArea = ee.Geometry.Rectangle([float(strSub[0]),float(strSub[1]),float(strSub[2]),float(strSub[3])])
 
-fields = ee.FeatureCollection("ft:1GE0weDX4hKp_8Lt-MRySeDktJJ-gej7czjWPmzAx") #All farm field boundaries as of June2016
-SIMS_ID_basemap = ee.Image("users/mhang/ca_30m_sid_poly_b5m_2014_12152016_ag_only")
+fields = ee.FeatureCollection("users/mhang/base12_ca_poly_170613_slim") #All farm field boundaries as of June2016
 
 # --------------------------------------------------------------------------------------------------
 # FUNCTIONS
-# function to calculate mode pixel value for each feature. For attaching SIMS ID to each field
-def getPixelValue(image):
-    return image.reduceRegions(
-        collection=fields_filter,
-        reducer=ee.Reducer.mode().setOutputs(['SIMS_ID']),
-        scale=30)
 
-
-# function to calculate NDVI for Landsat 7
+# function to calculate NDVI for Landsat 7 SR
 def calculateNDVI_L7(image):
     ndvi = image.normalizedDifference(['B4', 'B3'])
     # Filter the clouds
@@ -42,11 +34,29 @@ def calculateNDVI_L7(image):
     return ndvi.copyProperties(image, prop)
 
 
-# function to calculate NDVI for Landsat 8
+# function to calculate NDVI for Landsat 7 TOA
+def calculateNDVI_L7_TOA(image):
+    ndvi = image.normalizedDifference(['B4', 'B3'])
+    # Filter the clouds
+    ndvi = ndvi.updateMask(image.select('fmask').eq(0))
+    prop = ['system:time_start']
+    return ndvi.copyProperties(image, prop)
+
+
+# function to calculate NDVI for Landsat 8 SR
 def calculateNDVI_L8(image):
     ndvi = image.normalizedDifference(['B5', 'B4'])
     # Filter the clouds
     ndvi = ndvi.updateMask(image.select('cfmask').eq(0))
+    prop = ['system:time_start']
+    return ndvi.copyProperties(image, prop)
+
+
+# function to calculate NDVI for Landsat 8 TOA
+def calculateNDVI_L8_TOA(image):
+    ndvi = image.normalizedDifference(['B5', 'B4'])
+    # Filter the clouds
+    ndvi = ndvi.updateMask(image.select('fmask').eq(0))
     prop = ['system:time_start']
     return ndvi.copyProperties(image, prop)
 
@@ -86,9 +96,6 @@ if vMode == 'y':
 # Load the fields, this does not include SIMS ids
 fields_filter = fields.filterBounds(dividedArea)
 
-# Add SIMS ID; intersected fields does not mess up SIMS ID
-fields_SIMS = getPixelValue(SIMS_ID_basemap)
-
 # Simplify the geometries to try and speed things up
 maxErrorTolerance = 20
 if vMode == 'y':
@@ -99,7 +106,7 @@ def simplify(f):
     return f.simplify(maxErrorTolerance)
 
 
-fields_simplified = fields_SIMS.map(simplify)
+fields_simplified = fields_filter.map(simplify)
 
 # Set temporal and spatial parameters
 outputPoly = fields_simplified
@@ -113,15 +120,15 @@ if vMode == 'y':
 if sys.argv[1] == 'L7SR':
     L7_IC = ee.ImageCollection("LANDSAT/LE7_SR") #Landsat7 Surface Reflectance Image Collection
     NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L7).select('nd')
-elif sys.argv[1] == 'L7TO':
+elif sys.argv[1] == 'L7TOA':
     L7_IC = ee.ImageCollection("LANDSAT/LE7_L1T_TOA_FMASK")
-    NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L7).select('nd')
+    NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L7_TOA).select('nd')
 elif sys.argv[1] == 'L8SR':
     L8_IC = ee.ImageCollection("LANDSAT/LC8_SR")
     NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L8).select('nd')
 elif sys.argv[1] == 'L8TOA':
     L8_IC = ee.ImageCollection("LANDSAT/LC8_L1T_TOA_FMASK")
-    NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L8).select('nd')
+    NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L8_TOA).select('nd')
 elif sys.argv[1] == 'Sent2A':
     Sent2A_IC = ee.ImageCollection("COPERNICUS/S2")
     NDVI_IC = Sent2A_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_Sent2A).select('nd')
@@ -139,9 +146,10 @@ means = means.map(removeGeo)
 # filter
 means = means.filter(ee.Filter.neq('mean', None)).sort('date')  # python uses none instead of null (JavaScript)
 
-fn = '%s_polygons' % (sys.argv[2])
+fn = '%s_%s_polygons' % ((sys.argv[2]), (sys.argv[4]))
 
-# Export to CSV
+# Export to CSV to Google Drive
+# Create export parameters
 taskParams = {
     'driveFolder': 'Python EE Exports',
     'driveFileNamePrefix': fn,
@@ -149,7 +157,7 @@ taskParams = {
 }
 
 # Status updates for export
-MyTry = ee.batch.Export.table(means, 'lst_timeseries', taskParams)
+MyTry = ee.batch.Export.table(means, str(sys.argv[2]), taskParams)
 MyTry.start()
 state = MyTry.status()['state']
 counter = 0
