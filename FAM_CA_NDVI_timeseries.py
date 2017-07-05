@@ -93,7 +93,7 @@ if vMode == 'y':
 
 # --------------------------------------------------------------------------------------------------
 
-# Load the fields, this does not include SIMS ids
+# Load the fields by block
 fields_filter = fields.filterBounds(dividedArea)
 
 # Simplify the geometries to try and speed things up
@@ -110,7 +110,6 @@ fields_simplified = fields_filter.map(simplify)
 
 # Set temporal and spatial parameters
 outputPoly = fields_simplified
-clipPolygon = outputPoly  # ca_clip
 tStart = sys.argv[4]  # '2016-01-01'
 tEnd = sys.argv[5]  # '2016-12-31'
 
@@ -119,19 +118,19 @@ if vMode == 'y':
     print "Loading and filtering image collection using %s to %s" % (tStart, tEnd)
 if sys.argv[1] == 'L7SR':
     L7_IC = ee.ImageCollection("LANDSAT/LE7_SR") #Landsat7 Surface Reflectance Image Collection
-    NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L7).select('nd')
+    NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(dividedArea).map(calculateNDVI_L7).select('nd')
 elif sys.argv[1] == 'L7TOA':
     L7_IC = ee.ImageCollection("LANDSAT/LE7_L1T_TOA_FMASK")
-    NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L7_TOA).select('nd')
+    NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(dividedArea).map(calculateNDVI_L7_TOA).select('nd')
 elif sys.argv[1] == 'L8SR':
     L8_IC = ee.ImageCollection("LANDSAT/LC8_SR")
-    NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L8).select('nd')
+    NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(dividedArea).map(calculateNDVI_L8).select('nd')
 elif sys.argv[1] == 'L8TOA':
     L8_IC = ee.ImageCollection("LANDSAT/LC8_L1T_TOA_FMASK")
-    NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_L8_TOA).select('nd')
+    NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(dividedArea).map(calculateNDVI_L8_TOA).select('nd')
 elif sys.argv[1] == 'Sent2A':
     Sent2A_IC = ee.ImageCollection("COPERNICUS/S2")
-    NDVI_IC = Sent2A_IC.filterDate(tStart, tEnd).filterBounds(clipPolygon).map(calculateNDVI_Sent2A).select('nd')
+    NDVI_IC = Sent2A_IC.filterDate(tStart, tEnd).filterBounds(dividedArea).map(calculateNDVI_Sent2A).select('nd')
 
 
 if vMode == 'y':
