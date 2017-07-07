@@ -1,5 +1,5 @@
 # Import the Earth Engine Python Package
-import os, ee, datetime, csv, time, sys
+import ee, datetime, time, sys
 
 ee.Initialize()  # Initialize the Earth Engine object, using the authentication credentials.
 
@@ -114,6 +114,7 @@ tStart = sys.argv[4]  # '2016-01-01'
 tEnd = sys.argv[5]  # '2016-12-31'
 
 # Retrieve Image collection then filter,clip,calculate NDVI and filter clouds
+#  Here we're filtering by the bounding block instead of by the fields
 if vMode == 'y':
     print "Loading and filtering image collection using %s to %s" % (tStart, tEnd)
 if sys.argv[1] == 'L7SR':
