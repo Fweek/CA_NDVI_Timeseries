@@ -5,7 +5,27 @@ ee.Initialize()
 os.chdir('C:\Users\Michael\Desktop\CA_Divided')
 
 #Import feature collection
-fields = ee.FeatureCollection("users/mhang/base16_ca_poly_170619_slim")
+fields = ee.FeatureCollection("users/mhang/base12_ca_poly_170613_slim")
+print(fields.size())
+print(fields.first())
+
+sorted = fields.sort("simsid")
+print(sorted.first())
+
+totalfields = sorted.size().getInfo()
+maxfields = []
+for i in range(26):
+    x=15000*i
+    maxfields.append(x)
+blocksize = (totalfields/maxfields)+1
+
+count = 0
+
+for i in maxfields:
+    filterX = sorted.filterMetadata("simsid", "greater_than", (i))
+    filter = sorted.filterMetadata("simsid", "less_than", (i+15001))
+
+
 
 #Coordinates for California box
 North = 42.02 #northern-most point in CA
@@ -41,7 +61,7 @@ for i in range(divided):
     print(' Counting...')
     numFields = Box_fields.size().getInfo() #this part takes awhile
     maxFields = float(10000)
-    if numFields > maxFields:
+    if numFields > maxFields: #if the the number of fields is greater than our arbitrary limit then replit
         print('  Re-spliting...')
         nWest = Coord[0]
         nNorth = Coord[1]
@@ -51,11 +71,11 @@ for i in range(divided):
         nDivided = int(math.ceil(numFields/maxFields))
         nSplitsize = nDifference/(nDivided+1) #adding 1 because results might still have boxes with more than 15k fields.
         nCoordinates = []
-        for nCount in range(nDivided+1):
+        for nCount in range(nDivided+1): #adding 1 because results might still have boxes with more than 10k fields.
             nCoordinates.append([nWest, nSouth+(nSplitsize*(nCount+1)), nEast, nSouth+(nSplitsize*(nCount))])
             FinalCoordinates.append([nWest, nSouth+(nSplitsize*(nCount+1)), nEast, nSouth+(nSplitsize*(nCount))])
         nNumFeatures = []
-        for k in range(nDivided+1):
+        for k in range(nDivided+1): #adding 1 because results might still have boxes with more than 15k fields.
             nCoord = nCoordinates[(k)]
             nBox = ee.Geometry.Rectangle(nCoord)
             nBox_fields = fields.filterBounds(nBox)
@@ -78,20 +98,22 @@ with open('CA_divided.csv', 'wb') as f:
     rows = zip(ID, FinalCoordinates, FinalFeatures)
     for row in rows:
         writer.writerow(row)
-        
-startDate = "2014-01-01"
-endDate = "2014-12-31"
+
+startDate = "2011-01-01"
+endDate = "2011-12-31"
 
 Satellites = ['L7SR', 'L8SR', 'L7TOA', 'L8TOA', 'Sent2A']
 for sensor in Satellites:
     w = open(sensor+"_"+startDate+"_wrapper.txt","w")
     w.write("!/bin/bash\n")
     w.write("echo 'Creating wrapper'\n")
-    w.write("mkdir outLogs\n")
+    #w.write("mkdir outLogs\n")
 
     h = 1
     for i in FinalCoordinates:
-       w.write("time python CA_NDVI_Timeseries.py "+sensor+" CA_"+sensor+"_timeseries_group"+str(h)+" "+str(i[0])+","+str(i[1])+","+str(i[2])+","+str(i[3])+" "+startDate+" "+ endDate+" n > ./outLogs/out_"+str(h)+".out 2>&1 &\n")
+       w.write("python CA_NDVI_Timeseries.py "+sensor+" CA_"+sensor+"_timeseries_group"+str(h)+" "+str(i[0])+","+str(i[1])+","+str(i[2])+","+str(i[3])+" "+startDate+" "+ endDate+" n &\n")
+       #w.write("time python CA_NDVI_Timeseries.py " + sensor + " CA_" + sensor + "_timeseries_group" + str(h) + " " + str(i[0]) + "," + str(i[1]) + "," + str(i[2]) + "," + str(i[3]) + " 2016-01-01 2016-12-31 n &\n")
+
        h += 1
 
     w.write("echo 'Done'\n")
