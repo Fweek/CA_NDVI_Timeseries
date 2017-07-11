@@ -19,7 +19,42 @@ bTime = datetime.datetime.now()
 # IMPORT Earth Engine objects
 strSub = sys.argv[3].split(',')
 dividedArea = ee.Geometry.Rectangle([float(strSub[0]),float(strSub[1]),float(strSub[2]),float(strSub[3])])
-
+CA_polygon = ee.Geometry.Polygon(
+    [[[-124.20921995521553, 41.51488654023345],
+      [-124.51685417405076, 40.41129319422741],
+      [-124.00036049953536, 39.823078222550436],
+      [-123.76956193011677, 38.88847627801764],
+      [-122.47286052275422, 37.18364615274037],
+      [-122.02916445119877, 36.847001643917615],
+      [-121.97835870596555, 36.294290050154316],
+      [-121.6117846446461, 36.01681323341259],
+      [-121.3629970594859, 35.67188786688154],
+      [-120.77511692190774, 35.05358607744978],
+      [-120.63225943955223, 34.475856856713534],
+      [-119.70047734557852, 34.25000684388964],
+      [-119.56296000213342, 33.967338619207666],
+      [-118.54405910056727, 33.96984620132081],
+      [-118.67351603712058, 33.5215006626617],
+      [-118.48418883442054, 33.26245594789118],
+      [-117.7215967190836, 33.393710104815824],
+      [-117.36239521082945, 32.97811585090315],
+      [-117.27261268039786, 32.508154070114315],
+      [-114.50360328501665, 32.72561979918868],
+      [-114.41019857596342, 32.94719720814995],
+      [-114.49659401865097, 33.074907927594644],
+      [-114.63603507333545, 33.113485274763924],
+      [-114.59424081610251, 33.317563167841115],
+      [-114.45869991405743, 33.58931452035561],
+      [-114.44152000510991, 33.88783741183264],
+      [-114.31953884520681, 34.09964171272725],
+      [-114.06678119380615, 34.29675114909958],
+      [-114.32384260586258, 34.59178992926519],
+      [-114.5026648721186, 34.84985767939348],
+      [-114.58046259871588, 35.022079592400864],
+      [-119.9372951410673, 39.02952120857728],
+      [-119.9345822965098, 42.01289938985791],
+      [-122.14351910778498, 42.05955034509238],
+      [-124.3520996271057, 42.05362744650692]]]);
 fields = ee.FeatureCollection("users/mhang/base12_ca_poly_170613_slim") #All farm field boundaries as of June2016
 
 # --------------------------------------------------------------------------------------------------
@@ -93,8 +128,11 @@ if vMode == 'y':
 
 # --------------------------------------------------------------------------------------------------
 
+#Clip each block by the state borders
+intersectBlock = dividedArea.intersection(CA_polygon)
+
 # Load the fields by block
-fields_filter = fields.filterBounds(dividedArea)
+fields_filter = fields.filterBounds(intersectBlock)
 
 # Simplify the geometries to try and speed things up
 maxErrorTolerance = 20
@@ -144,14 +182,14 @@ means = NDVI_IC.map(getMeans).flatten()
 means = means.map(removeGeo)
 
 # filter
-means = means.filter(ee.Filter.neq('mean', None)).sort('date')  # python uses none instead of null (JavaScript)
+#means = means.filter(ee.Filter.neq('mean', None)).sort('date')  # python uses none instead of null (JavaScript)
 
 fn = '%s_%s_polygons' % ((sys.argv[2]), (sys.argv[4]))
 
 # Export to CSV to Google Drive
 # Create export parameters
 taskParams = {
-    'driveFolder': 'Python EE Exports',
+    'driveFolder': 'Python EE Exports (column drop commented)',
     'driveFileNamePrefix': fn,
     'fileFormat': 'CSV'
 }
