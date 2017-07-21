@@ -7,6 +7,72 @@ import sys
 @cython.wraparound(False)
 
 
+def getFieldAvgs(np.ndarray [np.double_t, ndim=2] NDVI, np.ndarray [np.int32_t, ndim=2] centroids, 
+
+                  np.ndarray [np.int32_t, ndim=2] maskSID,np.ndarray [np.double_t, ndim=2] output,int colIndx):
+
+    cdef int yDim = NDVI.shape[0]
+
+    cdef int xDim = NDVI.shape[1]
+
+    cdef int ctrVal = 0
+
+    cdef int sidVal = 0
+
+    cdef int boxDim = 100
+
+    #cdef double count = 0
+
+    cdef int step = 0
+
+    cdef int y = 0
+
+    cdef int x = 0
+
+    cdef double nodata = -9999.0
+
+    cdef int i = 1
+
+    cdef double totalPix = 0
+
+    
+
+    print "Getting field avg..."
+
+    for y in range(0 + boxDim,yDim - boxDim):
+
+      '''
+
+      if step > 1000:
+
+         print "\r",y,
+
+         step = 0
+
+      step += 1
+
+      '''
+
+      for x in range(0 + boxDim,xDim - boxDim): 
+
+        #check centroid layer
+
+        ctrVal = centroids[<unsigned int>y,<unsigned int>x]         
+
+        if ctrVal > 0: 
+
+           ndviAvg,totalPix = fieldAvg(NDVI,maskSID,ctrVal,y,x,boxDim)
+
+           output[<unsigned int>i,<unsigned int>colIndx] = ndviAvg
+
+           output[<unsigned int>i,1] = totalPix
+
+           i += 1               
+
+    print "Done"
+
+    return output
+
 def typicality(np.ndarray [np.int32_t, ndim=2] class2010,np.ndarray [np.int32_t, ndim=2] class2011,
                np.ndarray [np.int32_t, ndim=2] outClass, int indx,np.ndarray [np.int32_t, ndim=2] class2012):
     cdef int y = 0
