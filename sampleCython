@@ -1,0 +1,53 @@
+cimport cython
+import numpy as np
+cimport numpy as np
+import sys
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+
+
+def typicality(np.ndarray [np.int32_t, ndim=2] class2010,np.ndarray [np.int32_t, ndim=2] class2011,
+               np.ndarray [np.int32_t, ndim=2] outClass, int indx,np.ndarray [np.int32_t, ndim=2] class2012):
+    cdef int y = 0
+    cdef int x = 0
+    cdef int yDim = class2010.shape[0]
+    cdef int xDim = class2010.shape[1]
+    cdef int nodata = -9999
+    cdef int noclass = -9995
+    cdef int val2010 = -1
+    cdef int val2011 = -1
+    cdef int val2012 = -1
+    cdef int outVal = -1
+    cdef int lvRh = 120
+    cdef int lvNc = 130
+    cdef int lvUd = 160
+    cdef int count = 0
+
+
+
+    #Should I check the header to make sure they're the same or within 1day?
+    for y in range(1,yDim): #first row is header 
+       print "\r",y,
+       count = 0
+       val2010 = class2010[<unsigned int>y,<unsigned int>indx]
+       val2011 = class2011[<unsigned int>y,<unsigned int>indx]
+       val2012 = class2012[<unsigned int>y,<unsigned int>indx]
+       outVal = outClass[<unsigned int>y,<unsigned int>indx]
+
+
+
+       #LV-RH OR LV-NC OR LV-UD
+       if (val2010 == lvRh) or (val2010 == lvNc) or (val2010 == lvUd):
+          count += 1
+       if (val2011 == lvRh) or (val2011 == lvNc) or (val2011 == lvUd):
+          count += 1
+       if (val2012 == lvRh) or (val2012 == lvNc) or (val2012 == lvUd):
+          count += 1
+       #0 na, 1 typically bare, 2 not typically bare
+       if count >= 2:
+          outClass[<unsigned int>y,<unsigned int>indx] = outVal + 1 
+       else:
+          outClass[<unsigned int>y,<unsigned int>indx] = outVal + 2
+
+    return outClass
