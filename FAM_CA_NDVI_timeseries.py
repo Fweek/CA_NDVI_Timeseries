@@ -206,5 +206,29 @@ while state in ['READY', 'RUNNING']:
     state = MyTry.status()['state']
     counter += 1
 print 'Done.', MyTry.status()
+Script_status = MyTry.status()
 print "Start time: ", bTime
 print "End time: ", datetime.datetime.now()
+
+#Automatically restart entire script is export fails.
+script_split = str(Script_status).split(',') #parsing the export status for the completed or failed status
+state = script_split[5]
+state2 = state.split(':')
+state3 = str(state2[1])
+repeat = 0 #create a counter for the number of retrys before quitting.
+
+#Restart function
+def restart():
+    import sys
+    print("argv was", sys.argv)
+    print("sys.executable was", sys.executable)
+    print("restart now")
+
+    import os
+    os.execv(sys.executable, ['python'] + sys.argv)
+
+#If the export status is FAILED and the repeat counter is less than 5 then restart the entire script.
+if state3 == str(" u'FAILED'") and repeat<5:
+    repeat += 1
+    print repeat
+    restart()
