@@ -171,6 +171,7 @@ elif sys.argv[1] == 'Sent2A':
     Sent2A_IC = ee.ImageCollection("COPERNICUS/S2")
     NDVI_IC = Sent2A_IC.filterDate(tStart, tEnd).filterBounds(dividedArea).map(calculateNDVI_Sent2A).select('nd')
 
+
 if vMode == 'y':
     print "Calculating field averages"
 
@@ -193,51 +194,33 @@ taskParams = {
     'fileFormat': 'CSV'
 }
 
-state3 == str(" u'FAILED'")
-repeat = 0
+state3 = str(" u'FAILED'")
+repeat = 0 #counter
 
-
-#If the export status is FAILED and the repeat counter is less than 5 then restart the entire script.
-while state3 == str(" u'FAILED'") and repeat<5:
-  # Status updates for export
-  MyTry = ee.batch.Export.table(means, str(sys.argv[2]), taskParams)
-  MyTry.start()
-  state = MyTry.status()['state']
-  counter = 0
-  while state in ['READY', 'RUNNING']:
-    if vMode == 'y':
-        print "\r" + state + '... ' + str(counter),
-    time.sleep(1)
+# If the export status is FAILED and the repeat counter is less than 5 then restart the export process
+while state3 == str(" u'FAILED'") and repeat < 5:
+    # Status updates for export
+    MyTry = ee.batch.Export.table(means, str(sys.argv[2]), taskParams)
+    MyTry.start()
     state = MyTry.status()['state']
-    counter += 1
-  
-  print 'Done.', MyTry.status()
-  Script_status = MyTry.status()
+    counter = 0
+    while state in ['READY', 'RUNNING']:
+        if vMode == 'y':
+            print "\r" + state + '... ' + str(counter),
+        time.sleep(1)
+        state = MyTry.status()['state']
+        counter += 1
 
-  #Automatically restart entire script is export fails.
-  script_split = str(Script_status).split(',') #parsing the export status for the completed or failed status
-  state = script_split[5]
-  state2 = state.split(':')
-  state3 = str(state2[1])
-  
-  repeat += 1
-  print repeat
+    print 'Done.', MyTry.status()
+    Script_status = MyTry.status()
 
+    script_split = str(Script_status).split(',')  # parsing the export status for the completed or failed status
+    state = script_split[5]
+    state2 = state.split(':')
+    state3 = str(state2[1])
 
-  
+    repeat += 1
+    print "Repeat #:", repeat
+
 print "Start time: ", bTime
 print "End time: ", datetime.datetime.now()
-
-
-#Restart function
-#def restart():
-#    import sys
-#    print("argv was", sys.argv)
-#    print("sys.executable was", sys.executable)
-#    print("restart now")
-
-#    import os
-#    os.execv(sys.executable, ['python'] + sys.argv)
-
-
-#    restart()
