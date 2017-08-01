@@ -14,7 +14,7 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, list tempOut
     cdef int dateTemp2 = 0
 
     for row in range(1, yDim):
-        simsId = finalOutput[row, 0]
+        simsId = finalOutput[<unsigned int>row, 0]
 
         for j in tempOut:
             tempOutId = float(j[0])
@@ -25,7 +25,7 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, list tempOut
                 print date, ndvi
 
                 for col in range(1, 48):
-                    dateTemp = int(finalOutput[0, col])
+                    dateTemp = int(finalOutput[0, <unsigned int>col])
                     dateTemp2 = dateTemp+8
 
                     if dateTemp <= date < dateTemp2:
