@@ -89,9 +89,9 @@ for csvFilename in os.listdir('.'):
     tEnd = (datetime.datetime(2016, 12, 31) - datetime.datetime(1980, 1, 1)).days
     print tEnd
 
-    indx = 0
+    indx = 5
     for i in range(tStart, tEnd, 8): #every 8th value starting at tStart
-        finalOutput[0, indx+1] = i #take that value and put it in the finalOutput array at the specified index
+        finalOutput[0, indx] = i #take that value and put it in the finalOutput array at the specified index
         indx += 1 #index increases incrementally each loop
 
     finalOutput[1:yDim, 0] = uniqueIds
