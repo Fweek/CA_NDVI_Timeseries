@@ -24,7 +24,7 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, list tempOut
                 ndvi = float(j[2])
                 print date, ndvi
 
-                for col in range(1, 48):
+                for col in range(5, 51):
                     dateTemp = int(finalOutput[0, <unsigned int>col])
                     dateTemp2 = dateTemp+8
 
