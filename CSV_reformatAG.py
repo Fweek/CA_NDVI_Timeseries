@@ -112,7 +112,7 @@ else:
     finalOutput[1:yDim, 0] = uniqueIds
     
     print "Starting to populate array"
-    addDateNDVI.populate(yDim, finalOutput, tempOut)
+    finalOutput = addDateNDVI.populate(yDim, finalOutput, tempOut)
 
     #print finalOutput
 
