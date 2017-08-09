@@ -29,6 +29,9 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
             #Get the sims IDs
             tempOutId = tempOut[<unsigned int>j,0]
             #print tempOutId,simsId
+            if simsId > tempOutId:
+                break
+                
             if simsId == tempOutId:
                 #currentIndx = j
                 #we could use this to start searching at last position
@@ -48,5 +51,6 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
                     if (dateTemp == date) and (date < dateTemp2):
                         #print row, col, ndvi
                         finalOutput[<unsigned int>row, <unsigned int>col] = ndvi
+                
     
     return finalOutput
