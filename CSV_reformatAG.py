@@ -84,7 +84,8 @@ else:
         tempOut[i,1] = float(dtNum)
         tempOut[i,2] = float(ndvi4)
         #print "tempOut",tempOut[i,0],tempOut[i,1],tempOut[i,2]
-
+        tempOut = tempOut[numpy.argsort(tempOut[:, 0])]
+         
     #Why Do we sort?
     #tempOut.sort()
     #print "tempOut",tempOut[10,0]
