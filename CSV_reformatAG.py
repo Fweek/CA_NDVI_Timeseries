@@ -2,7 +2,7 @@ import sys,os,csv,datetime,string,numpy
 import addDateNDVI
 
 #Set working directory
-folder = 'CSVConversion'
+#folder = 'CSVConversion'
 #os.chdir("/home/go_myco/"+folder)
 
 #Make a new directory for the output files if it does not already exist
@@ -15,10 +15,10 @@ folder = 'CSVConversion'
 # Loop through every file in the current working directory.
 #for csvFilename in os.listdir('/home/aguzman/scripts/Inputs/'):
 fn = "/home/aguzman/scripts/inputs/L7SR_2016_meanNDVI_merged.csv"
-if os.path.exists(fn) is False:
+if os.path.exists(fn) is False: #if the file stated above does not exists print Error
    print "Error no input file"
 else:
-    print('Modifying ' + fn + '...')
+    print('Modifying ' + fn + '...') #if it does start modifying it
 
     #Open the file
     fPtr = open(fn)
@@ -84,7 +84,8 @@ else:
         tempOut[i,1] = float(dtNum)
         tempOut[i,2] = float(ndvi4)
         #print "tempOut",tempOut[i,0],tempOut[i,1],tempOut[i,2]
-        tempOut = tempOut[numpy.argsort(tempOut[:, 0])]
+    
+    tempOut = tempOut[numpy.argsort(tempOut[:, 0])]
          
     #Why Do we sort?
     #tempOut.sort()
