@@ -22,7 +22,7 @@ else:
 
     #Open the file
     fPtr = open(fn)
-    if fPtr is None:
+    if fPtr is None: #if the file doesn't exist close out ???
       print "Error opening %s " % fn
       sys.exit(1)
 
@@ -30,22 +30,22 @@ else:
     rdr= csv.reader(fPtr)
     fPtr = None
 
-    #Create container for input
+    # Create a blank list container for input
     input = []
 
-    #Keep only columns we want: DATE in column 0, NDVI in column 1, and SIMSID in column 2
-    for l in rdr:
-      input.append((l[1],l[2],l[3]))
+    # In the current open CSV, keep only columns we want: DATE in column 0, NDVI in column 1, and SIMSID in column 2
+    for l in rdr: #for each line in the current open CSV
+      input.append((l[1],l[2],l[3]))  #take columns 1-3 and add them to the empty list container
 
     #Remove header
-    input = input[1::]
+    input = input[1::] #keep all rows after header
 
-    #Find how many unique ids we have
-    simsIds = [i[2] for i in input] #where i is the row in input and [2] is the SIMSID column
+    # Find how many unique ids we have in the new list
+    simsIds = [i[2] for i in input]  # create subset list that is just the 2nd column (SIMs ID column) of the new list
 
-    #Get all the unique simsids and count them. This will be the number of rows for our new table
-    uniqueIds = numpy.unique(simsIds) #adding 1 to account for row header
-    yDim = len(uniqueIds) + 1 
+    # Get all the unique simsids and count them. This will be the number of rows for our final table
+    uniqueIds = numpy.unique(simsIds) #count all the unique SIMS IDs in the subset list
+    yDim = len(uniqueIds) + 1 #Make a new variable that is = to the # of unique IDs; adding 1 to account for new row header
     print "Number of unique sims ids %d" % yDim
 
     # We will always have 51 columns. 5 extra + 46 timesteps
@@ -53,36 +53,37 @@ else:
 
     #Create final output array
     finalOutput = numpy.ones((yDim,xDim)) * -9999.0 #fill all cells with -9999
-    tempOut = numpy.ones((len(input),3)) * -9999.0
+    tempOut = numpy.ones((len(input),3)) * -9999.0 #create a temp output array with only 3 columns and fill all cells with -9999
 
     print "Reformatting the array"
 
     #More formatting
-    for i in range(0,len(input)):
+    for i in range(0,len(input)): #for each row in the range of 0 to however long input is
         #Grab only date column
         #print input[i,0]
-        inputItem = input[i]
+        inputItem = input[i] #create list with just the current row. Ex. [01/05/2016, 1536, 0.56]
         #print inputItem
         #if i > 8:
         #  sys.exit(0)
-        dtStr = inputItem[0]
+        dtStr = inputItem[0] #create new list of just 0 cell(date cell)
         #Parse out year, month, day. Ugly code but need to get this moving...
-        dtStr2 = dtStr.split('-')
-        yr, mm, dd = dtStr2[0], dtStr2[1], dtStr2[2]
+        dtStr2 = dtStr.split('-') #split the date up by the dash (-)
+        yr, mm, dd = dtStr2[0], dtStr2[1], dtStr2[2] #create new variables for day, month, and year
         #Reformat date
         dtNum = (datetime.datetime(int(yr), int(mm), int(dd)) - datetime.datetime(1980, 1, 1)).days
 
-        #Replace all {nd=null} values with -9999
-        ndvi = inputItem[1]
-        ndvi2 = string.replace(ndvi, '{nd=null}', '-9999')
+        # Work on NDVI now
+        ndvi = inputItem[1] #create new list of just the 1 cell (NDVI cell)
+        ndvi2 = string.replace(ndvi, '{nd=null}', '-9999') #If the value of this cell is {nd=null} then replace it with -9999
 
         #Format NDVI to only numbers
-        ndvi3 = string.replace(ndvi2, '{nd=', '')
+        ndvi3 = string.replace(ndvi2, '{nd=', '') #get rid of the {nd= part
         ndvi4 = string.replace(ndvi3, '}', '')
         #tempOut.append((float(l[2]), float(dtNum), float(ndvi4)))
-        tempOut[i,0] = float(inputItem[2])
-        tempOut[i,1] = float(dtNum)
-        tempOut[i,2] = float(ndvi4)
+        #Now rebuild the SIMSID, date, NDVI list
+        tempOut[i,0] = float(inputItem[2]) #add the SIMs ID to the 1st cell in tempOut
+        tempOut[i,1] = float(dtNum) #add the new modified date to the 2nd cell in tempOut
+        tempOut[i,2] = float(ndvi4) #add the new modified NDVI to the 3rd cell in tempOut
         #print "tempOut",tempOut[i,0],tempOut[i,1],tempOut[i,2]
     
     tempOut = tempOut[numpy.argsort(tempOut[:, 0])]
@@ -98,22 +99,24 @@ else:
     #uniqueIds = numpy.unique(simsIds)
     #print uniqueIds.shape
 
-    #Fill in the date header based on year, assuming we're looking at 2016 data
+    #Now we work on the header which is just a range of dates. This is only for 2016
+    #Create the start date and the end date
     tStart = (datetime.datetime(2016, 01, 1) - datetime.datetime(1980, 1, 1)).days
     print tStart
     tEnd = (datetime.datetime(2016, 12, 31) - datetime.datetime(1980, 1, 1)).days
     print tEnd
 
+    #Now we'll fill in the dates inbetween
     print "Populating the date"
-    indx = 5
-    for i in range(tStart, tEnd, 8): #every 8th value starting at tStart
-        finalOutput[0, indx] = i #take that value and put it in the finalOutput array at the specified index
+    indx = 5 #We're going to skip the first 5 cells which is reserved for something else
+    for i in range(tStart, tEnd, 8):  #starting at tStart add 8 until we get to tEnd
+        finalOutput[0, indx] = i #In the finalOutput list, fill in the specified cell with the new date
         indx += 1 #index increases incrementally each loop
 
     print "Adding the uniqueIds"
-    finalOutput[1:yDim, 0] = uniqueIds
+    finalOutput[1:yDim, 0] = uniqueIds #Now that the header row is all filled in, we're fill the header column with all the SIMs IDs
     
-    print "Starting to populate array"
+    print "Starting to populate array" #Now we need to populate the rest of the table with NDVI
     finalOutput = addDateNDVI.populate(yDim, finalOutput, tempOut)
 
     #print finalOutput
