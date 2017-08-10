@@ -33,7 +33,7 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
             if simsId > tempOutId:
                 break
 
-            if simsId == tempOutId: # check to see if the two SIMS ID match up
+            elif simsId == tempOutId: # check to see if the two SIMS ID match up
                 #currentIndx = j
                 #we could use this to start searching at last position
                 #print "IDs match", simsId, tempOutId # if they match says so
