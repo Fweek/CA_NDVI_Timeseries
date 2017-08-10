@@ -30,7 +30,7 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
             tempOutId = tempOut[<unsigned int>j,0] # make tempOutId equal to just the SIMS ID column
             # Check the date and add to column
             #print tempOutId,simsId
-            if simsId > tempOutId:
+            if simsId < tempOutId:
                 break
 
             elif simsId == tempOutId: # check to see if the two SIMS ID match up
