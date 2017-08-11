@@ -16,8 +16,11 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
 
     cdef int jDim = tempOut.shape[0]#0
 
-    cdef int currentIndx = 0
-
+    #cdef int currentIndx = 0
+    cdef int cnt1 = 0
+    cdef int cnt2 = 0
+    cdef int cnt3 = 0
+    
     print yDim
     print jDim
 
@@ -39,11 +42,13 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
                 #print "IDs match", simsId, tempOutId # if they match says so
                 date = tempOut[<unsigned int>j,1]  # create variables for each column
                 ndvi = tempOut[<unsigned int>j,2]
-
+                cnt1 += 1
+                
                 #If it's no data then move on to next row
                 if ndvi > -1.0:
                   #print date, ndvi
-
+                  cnt2 += 1
+                    
                   #Find the colum
                   for col in range(5, 51):
                     dateTemp = int(finalOutput[0, <unsigned int>col])   # make new date variable based on header
@@ -52,5 +57,9 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
                     if (dateTemp == date) and (date < dateTemp2):
                         #print row, col, ndvi
                         finalOutput[<unsigned int>row, <unsigned int>col] = ndvi
-
+                        cnt3 += 1
+      
+    print cnt1
+    print cnt2
+    print cnt3
     return finalOutput
