@@ -15,6 +15,7 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
     cdef double dateTemp2 = 0
 
     cdef int jDim = tempOut.shape[0]#0
+    cdef int jPrev = 0
 
     #cdef int currentIndx = 0
     cdef int cnt1 = 0
@@ -28,12 +29,13 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
         print '{0}\r'.format(row),
         simsId = finalOutput[<unsigned int>row, 0] # create variable called simsId, set it equal to the simsId in the [row, 0] position
 
-        for j in range(0,jDim):#tempOut: # then in a different list
+        for j in range(jPrev,jDim):#tempOut: # then in a different list
             #Get the sims IDs
             tempOutId = tempOut[<unsigned int>j,0] # make tempOutId equal to just the SIMS ID column
             # Check the date and add to column
             #print tempOutId,simsId
             if simsId < tempOutId:
+                jPrev = j
                 break
 
             elif simsId == tempOutId: # check to see if the two SIMS ID match up
