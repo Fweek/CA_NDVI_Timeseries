@@ -41,7 +41,7 @@ else:
     input = input[1::] #keep all rows after header
 
     # Find how many unique ids we have in the new list
-    simsIds = [i[2] for i in input]  # create subset list that is just the 2nd column (SIMs ID column) of the new list
+    simsIds = [float(i[2]) for i in input]  # create subset list that is just the 2nd column (SIMs ID column) of the new list
 
     # Get all the unique simsids and count them. This will be the number of rows for our final table
     uniqueIds = numpy.unique(simsIds) #count all the unique SIMS IDs in the subset list
