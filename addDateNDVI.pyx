@@ -21,6 +21,8 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
     cdef int cnt1 = 0
     cdef int cnt2 = 0
     cdef int cnt3 = 0
+    cdef int cnt4 = 0
+    cdef int cnt5 = 0
     
     print yDim
     print jDim
@@ -32,10 +34,12 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
         for j in range(jPrev,jDim):#tempOut: # then in a different list
             #Get the sims IDs
             tempOutId = tempOut[<unsigned int>j,0] # make tempOutId equal to just the SIMS ID column
+            cnt1 += 1
             # Check the date and add to column
             #print tempOutId,simsId
             if simsId < tempOutId:
                 jPrev = j
+                cnt2 += 1
                 break
 
             elif simsId == tempOutId: # check to see if the two SIMS ID match up
@@ -44,12 +48,12 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
                 #print "IDs match", simsId, tempOutId # if they match says so
                 date = tempOut[<unsigned int>j,1]  # create variables for each column
                 ndvi = tempOut[<unsigned int>j,2]
-                cnt1 += 1
+                cnt3 += 1
                 
                 #If it's no data then move on to next row
                 if ndvi > -1.0:
                   #print date, ndvi
-                  cnt2 += 1
+                  cnt4 += 1
                     
                   #Find the colum
                   for col in range(5, 51):
@@ -59,9 +63,11 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
                     if (date >= dateTemp) and (date < dateTemp2):
                         #print row, col, ndvi
                         finalOutput[<unsigned int>row, <unsigned int>col] = ndvi
-                        cnt3 += 1
+                        cnt5 += 1
       
     print "Count1", cnt1
     print "Count2", cnt2
     print "Count3", cnt3
+    print "Count4", cnt4
+    print "Count5", cnt5
     return finalOutput
