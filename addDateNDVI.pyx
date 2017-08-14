@@ -61,7 +61,7 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
                         finalOutput[<unsigned int>row, <unsigned int>col] = ndvi
                         cnt3 += 1
       
-    print cnt1
-    print cnt2
-    print cnt3
+    print "Count1", cnt1
+    print "Count2", cnt2
+    print "Count3", cnt3
     return finalOutput
