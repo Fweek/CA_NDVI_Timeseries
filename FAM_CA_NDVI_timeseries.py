@@ -55,7 +55,7 @@ CA_polygon = ee.Geometry.Polygon(
       [-119.9345822965098, 42.01289938985791],
       [-122.14351910778498, 42.05955034509238],
       [-124.3520996271057, 42.05362744650692]]]);
-fields = ee.FeatureCollection("users/mhang/base12_ca_poly_170613_slim") #All farm field boundaries as of June2016
+fields = ee.FeatureCollection("users/mhang/base16_ca_poly_170619_slim") #All farm field boundaries as of June2016
 
 # --------------------------------------------------------------------------------------------------
 # FUNCTIONS
