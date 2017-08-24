@@ -121,7 +121,6 @@ def getMeans(image):
 def removeGeo(feature):
     return feature.select([".*"], None, False)  # in python false needs to be False
 
-
 vMode = sys.argv[6]
 if vMode == 'y':
     print "Verbose mode on"
@@ -134,15 +133,13 @@ intersectBlock = dividedArea.intersection(CA_polygon)
 # Load the fields by block
 fields_filter = fields.filterBounds(intersectBlock)
 
-# Simplify the geometries to try and speed things up
+# Simplify the geometries to try and speed things up [this can cause an "internal error" on GEE]
 maxErrorTolerance = 20
 if vMode == 'y':
     print "Simplifying polygons with maxErrorTolerance of %d percent" % maxErrorTolerance
 
-
 def simplify(f):
     return f.simplify(maxErrorTolerance)
-
 
 fields_simplified = fields_filter.map(simplify)
 
@@ -180,9 +177,6 @@ means = NDVI_IC.map(getMeans).flatten()
 
 # remove geometry
 means = means.map(removeGeo)
-
-# filter
-#means = means.filter(ee.Filter.neq('mean', None)).sort('date')  # python uses none instead of null (JavaScript)
 
 fn = '%s_%s_polygons' % ((sys.argv[2]), (sys.argv[4]))
 
