@@ -82,42 +82,55 @@ fields = ee.FeatureCollection("users/mhang/base13-15_wa_poly_slim")
 
 # function to calculate NDVI for Landsat 7 SR
 def calculateNDVI_L7(image):
-    ndvi = image.normalizedDifference(['B4', 'B3']).rename('ndvi')
+    ndvi = image.normalizedDifference(['B4', 'B3'])
+    # Filter the clouds
     ndvi = ndvi.updateMask(image.select('cfmask').eq(0))
-    return image.addBands(ndvi)
+    prop = ['system:time_start']
+    return ndvi.copyProperties(image, prop)
 
 
 # function to calculate NDVI for Landsat 7 TOA
 def calculateNDVI_L7_TOA(image):
-    ndvi = image.normalizedDifference(['B4', 'B3']).rename('ndvi')
-    ndvi = ndvi.updateMask(image.select('cfmask').eq(0))
-    return image.addBands(ndvi)
+    ndvi = image.normalizedDifference(['B4', 'B3'])
+    # Filter the clouds
+    ndvi = ndvi.updateMask(image.select('fmask').eq(0))
+    prop = ['system:time_start']
+    return ndvi.copyProperties(image, prop)
 
 
 # function to calculate NDVI for Landsat 8 SR
 def calculateNDVI_L8(image):
-    ndvi = image.normalizedDifference(['B5', 'B4']).rename('ndvi')
+    ndvi = image.normalizedDifference(['B5', 'B4'])
+    # Filter the clouds
     ndvi = ndvi.updateMask(image.select('cfmask').eq(0))
-    return image.addBands(ndvi)
+    prop = ['system:time_start']
+    return ndvi.copyProperties(image, prop)
 
 
 # function to calculate NDVI for Landsat 8 TOA
 def calculateNDVI_L8_TOA(image):
-    ndvi = image.normalizedDifference(['B5', 'B4']).rename('ndvi')
-    ndvi = ndvi.updateMask(image.select('cfmask').eq(0))
-    return image.addBands(ndvi)
+    ndvi = image.normalizedDifference(['B5', 'B4'])
+    # Filter the clouds
+    ndvi = ndvi.updateMask(image.select('fmask').eq(0))
+    prop = ['system:time_start']
+    return ndvi.copyProperties(image, prop)
 
 
 # function to calculate NDVI for Sentinel 2A (no cloudmasking yet)
 def calculateNDVI_Sent2A(image):
     ndvi = image.normalizedDifference(['B8', 'B4'])
-    return image.addBands(ndvi)
+    prop = ['system:time_start']
+    return ndvi.copyProperties(image, prop)
+
 
 
 # function to calculate mean NDVI
 # Calculate the mean value of an image for a region.
 # @ param {ee.Feature} join_element - to result of an inner join operation.
 # @ return {ee.Feature}
+
+# Set to true when debugging functions running on a single element.
+FUNCTION_OUTPUT = False
 
 def calculateMean (join_element):
     #Extract information from the results of the inner join.
@@ -130,12 +143,20 @@ def calculateMean (join_element):
     #Calculate the spatial mean value of the feature.
     meanOfFeature = matching_image.reduceRegion(ee.Reducer.mean(), matching_field.geometry(), 30)
 
-    #Addnewattributestothefeature.
+    #Add new attributes to the feature.
     result = matching_field.set(meanOfFeature).set({
-            'image_index': matching_image.get('system:index'),
-            'image_time_start': time_start,
-            'image_time_start_string': ee.Date(time_start).format()
-        })
+            'image_time_start_string': ee.Date(time_start).format('YYYY-MM-dd')
+            })
+
+    # Debugging output, used when testing the function on single join results.
+    if (FUNCTION_OUTPUT):
+        print('join_element', join_element)
+        print('matching_field', matching_field)
+        print('matching_image', matching_image)
+        print('meanOfFeature', meanOfFeature)
+        print('result', result)
+
+    return result
 
 
 # function to remove geometry at the end
