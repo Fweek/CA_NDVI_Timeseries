@@ -31,7 +31,7 @@ for csvFilename in os.listdir('.'):
     #Create container for input
     input = []
 
-    #Keep only columns we want: DATE in column 0, NDVI in column 1, and SIMSID in column 2
+    #Keep only columns we want: DATE in column 1, NDVI in column 2, and SIMSID in column 3
     for l in rdr:
       input.append((l[1],l[2],l[3]))
 
