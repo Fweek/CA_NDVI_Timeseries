@@ -159,10 +159,10 @@ taskParams = {
 }
 
 state3 = str(" u'FAILED'")
-repeat = 15000 #counter
+repeat = 0  # counter
 
 # If the export status is FAILED and the repeat counter is less than 5 then restart the export process
-while state3 == str(" u'FAILED'") and repeat < allfields_count:
+while state3 == str(" u'FAILED'") and repeat < 3:
     # Status updates for export
     MyTry = ee.batch.Export.table(means, str(sys.argv[2]), taskParams)
     MyTry.start()
@@ -184,8 +184,8 @@ while state3 == str(" u'FAILED'") and repeat < allfields_count:
     state2 = state.split(':')
     state3 = str(state2[1])
 
-    repeat += 15000
-    print "Repeat code for fields:", repeat-15000, "to", repeat
+    repeat += 1
+    print "Repeat #:", repeat
 
 print "Start time: ", bTime
 print "End time: ", datetime.datetime.now()
