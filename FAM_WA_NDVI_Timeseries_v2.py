@@ -104,7 +104,7 @@ if vMode == 'y':
 
 # --------------------------------------------------------------------------------------------------
 #Subset parameters
-export_count = 15000
+export_count = 10
 export_offset = 0
 
 #Subset all fields
