@@ -65,62 +65,36 @@ for csvFilename in os.listdir('.'):
  
     print "Reformatting the array"
 
-    #Function that checks if the input string is a DATE
-    def is_date(string):
-        try:
-            parse(string)
-            return True
-        except ValueError:
-            return False
-
     #More formatting
-    for l in input:
+    for i in range(0,len(input)): #for each row in the range of 0 to however long input is
         #Grab only date column
-        dtStr = l[0]
-        #Dates can be in various formats. This code can handle four different formats: yyyy-mm-dd, yyyy/mm/dd, mm-dd-yyyy, mm/dd/yyyy
-        #If the input string is a date and the date format starts with yyyy do the following:
-        if is_date(dtStr) == True and dtStr.startswith("20"):
-            regx = re.compile('[-/]')
-            #Parse out year, month, day.
-            y, m, d = regx.split(str(dtStr))
-            '/'.join(('20' + y.zfill(2), m.zfill(2), d.zfill(2) if len(y) == 2 else y))
-            #Reformat date
-            dtNum = (datetime.datetime(int(y), int(m), int(d)) - datetime.datetime(1980, 1, 1)).days
-            #Replace all {nd=null} values with -9999
-            ndvi = l[1]
-            #If ndvi value is in {nd=0.#####} format do the following:
-            if ndvi.startswith('{nd='):
-                ndvi2 = string.replace(ndvi, '{nd=null}', '-9999')
-                #Format NDVI to only numbers
-                ndvi3 = string.replace(ndvi2, '{nd=', '')
-                ndvi4 = string.replace(ndvi3, '}', '')
-                tempOut.append((float(l[2]), dtNum, ndvi4))
-            #Otherwise if just a value do the following:
-            else:
-                tempOut.append((float(l[2]), dtNum, ndvi))
+        #print input[i,0]
+        inputItem = input[i] #create list with just the current row. Ex. [01/05/2016, 1536, 0.56]
+        #print inputItem
+        #if i > 8:
+        #  sys.exit(0)
+        dtStr = inputItem[0] #create new list of just 0 cell(date cell)
+        #Parse out year, month, day. Ugly code but need to get this moving...
+        dtStr2 = dtStr.split('/') #split the date up by the dash (/)
+        mm, dd, yr = dtStr2[0], dtStr2[1], dtStr2[2] #create new variables for day, month, and year
+        #Reformat date
+        dtNum = (datetime.datetime(int(yr), int(mm), int(dd)) - datetime.datetime(1980, 1, 1)).days
 
-        #Otherwise if the input string is a date and the date format starts with mm do the following:
-        elif is_date(dtStr) == True:
-            regx = re.compile('[-/]')
-            #Parse out year, month, day.
-            m, d, y = regx.split(str(dtStr))
-            '/'.join(('20' + y.zfill(2), m.zfill(2), d.zfill(2) if len(y) == 2 else y))
-            #Reformat date
-            dtNum = (datetime.datetime(int(y), int(m), int(d)) - datetime.datetime(1980, 1, 1)).days
-            #Replace all {nd=null} values with -9999
-            ndvi = l[1]
-            #If ndvi value is in {nd=0.#####} format do the following:
-            if ndvi.startswith('{nd='):
-                ndvi2 = string.replace(ndvi, '{nd=null}', '-9999')
-                #Format NDVI to only numbers
-                ndvi3 = string.replace(ndvi2, '{nd=', '')
-                ndvi4 = string.replace(ndvi3, '}', '')
-                tempOut.append((float(l[2]), dtNum, ndvi4))
-            #Otherwise if just a value do the following:
-            else:
-                tempOut.append((float(l[2]), dtNum, ndvi))
+        # Work on NDVI now
+        ndvi = inputItem[1] #create new list of just the 1 cell (NDVI cell)
+        ndvi2 = string.replace(ndvi, '{nd=null}', '-9999') #If the value of this cell is {nd=null} then replace it with -9999
 
-    tempOut.sort()
+        #Format NDVI to only numbers
+        ndvi3 = string.replace(ndvi2, '{nd=', '') #get rid of the {nd= part
+        ndvi4 = string.replace(ndvi3, '}', '')
+        #tempOut.append((float(l[2]), float(dtNum), float(ndvi4)))
+        #Now rebuild the SIMSID, date, NDVI list
+        tempOut[i,0] = float(inputItem[2]) #add the SIMs ID to the 1st cell in tempOut
+        tempOut[i,1] = float(dtNum) #add the new modified date to the 2nd cell in tempOut
+        tempOut[i,2] = float(ndvi4) #add the new modified NDVI to the 3rd cell in tempOut
+        #print "tempOut",tempOut[i,0],tempOut[i,1],tempOut[i,2]
+    
+    tempOut = tempOut[numpy.argsort(tempOut[:, 0])]
 
     #Find how many unique dates we have
     #Do we still need line below?
