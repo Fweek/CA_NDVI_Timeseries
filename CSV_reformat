@@ -2,6 +2,7 @@
 # These input CSV files can have any number of columns but DATE, mean NDVI, and SIMSID must be in columns 1, 2, and 3 where column index starts at 0.
 import sys,os,csv,datetime,string,numpy,re
 from dateutil.parser import parse
+import addDateNDVI
 
 # Get the command line arguments
 usage = "usage: CSV_reformat.py <Directory path of input files> <output filename> <year>\n" + \
@@ -27,7 +28,7 @@ for csvFilename in os.listdir('.'):
 
     #Open the file
     fPtr = open(csvFilename)
-    if fPtr is None:
+    if fPtr is None: #if the file doesn't exist close out ???
       print "Error opening %s " % csvFilename
       sys.exit(1)
 
@@ -35,21 +36,22 @@ for csvFilename in os.listdir('.'):
     rdr= csv.reader(fPtr)
     fPtr = None
 
-    #Create container for input
+    #Create a blank list container for input
     input = []
 
     #Keep only columns we want: DATE in column 1, NDVI in column 2, and SIMSID in column 3
-    for l in rdr:
-      input.append((l[1],l[2],l[3]))
+    for l in rdr: #for each line in the current open CSV
+      input.append((l[1],l[2],l[3])) #take columns 1-3 and add them to the empty list container
 
     #Remove header
-    input = input[1::]
+    input = input[1::] #keep all rows but the header
 
     #Find how many unique ids we have
-    simsIds = [i[2] for i in input] #where i is the row in input and [2] is the SIMSID column
+    simsIds = float([i[2]) for i in input] #create subset list that is just the 2nd column (SIMs ID column) of the new list
 
-    #Get all the unique simsids and count them. This will be the number of rows for our new table
-    yDim = len(numpy.unique(simsIds)) + 1 #adding 1 to account for row header
+    #Get all the unique simsids and count them. This will be the number of rows for our final table
+    uniqueIds = numpy.unique(simsIds) #count all the unique SIMS IDs in the subset list
+    yDim = len(uniqueIds) + 1 #Make a new variable that is = to the # of unique IDs; adding 1 to account for new row header
     print "Number of unique sims ids %d" % yDim
 
     # We will always have 51 columns. 5 extra + 46 timesteps
@@ -59,7 +61,9 @@ for csvFilename in os.listdir('.'):
     finalOutput = numpy.ones((yDim,xDim)) * -9999.0 #fill all cells with -9999
 
     #Create temp output container
-    tempOut = []
+    tempOut = numpy.ones((len(input),3)) * -9999.0 #create a temp output array with only 3 columns and fill all cells with -9999
+ 
+    print "Reformatting the array"
 
     #Function that checks if the input string is a DATE
     def is_date(string):
@@ -119,48 +123,34 @@ for csvFilename in os.listdir('.'):
     tempOut.sort()
 
     #Find how many unique dates we have
+    #Do we still need line below?
     allDates = [i[1] for i in tempOut]
 
     #Get all unique IDs and count them
     uniqueIds = numpy.unique(simsIds)
     #print uniqueIds.shape
 
-    #Fill in the date header based on year, assuming we're looking at 2016 data
+    #Now we work on the header which is just a range of dates. This is only for 2016
+    #Create the start date and the end date
     tStart = (datetime.datetime(int(sys.argv[3]), 01, 1) - datetime.datetime(1980, 1, 1)).days
     print tStart
     tEnd = (datetime.datetime(int(sys.argv[3]), 12, 31) - datetime.datetime(1980, 1, 1)).days
     print tEnd
-
-    indx = 5
-    for i in range(tStart, tEnd, 8): #every 8th value starting at tStart
-        finalOutput[0, indx] = i #take that value and put it in the finalOutput array at the specified index
+    
+    #Now we'll fill in the dates inbetween
+    print "Populating the date"
+    indx = 5 #We're going to skip the first 5 cells which is reserved for something else
+    for i in range(tStart, tEnd, 8):  #starting at tStart add 8 until we get to tEnd
+        finalOutput[0, indx] = i #In the finalOutput list, fill in the specified cell with the new date
         indx += 1 #index increases incrementally each loop
 
-    finalOutput[1:yDim, 0] = uniqueIds
-
-    for row in range(1, yDim):  # for each row in the range of SIMs IDs
-        simsId = finalOutput[row, 0]  # create variable called simsId, set it equal to the simsId in the [row, 0] position
-        for j in tempOut:  # then in a different list
-            tempOutId = float(j[0])  # make tempOutId equal to just the SIMS ID column
-            # print simsId,tempOutId
-            if simsId == tempOutId:  # check to see if the two SIMS ID match up
-                # Check the date and add to column
-                print "IDs match", simsId, tempOutId  # if they match says so
-                date = j[1]  # create variables for each column
-                ndvi = j[2]
-                print date, ndvi
-                # which column?
-                for col in range(5, 51):  # why 5?
-                    dateTemp = int(finalOutput[0, col])  # make new date variable based on header
-                    dateTemp2 = dateTemp+8
-                    # print dateTemp,date
-                    if dateTemp <= date < dateTemp2:
-                        # Most dates won't match since the overpass can fall anywhere in between the 8 day period
-                        #      Have to account for this to make the code work
-                        # print "Dates match"
-                        print row, col, ndvi
-                        finalOutput[row, col] = ndvi
-
+    print "Adding the uniqueIds"
+    finalOutput[1:yDim, 0] = uniqueIds #Now that the header row is all filled in, we're fill the header column with all the SIMs IDs
+    
+    print "Starting to populate array" #Now we need to populate the rest of the table with NDVI
+    finalOutput = addDateNDVI.populate(yDim, finalOutput, tempOut)
+ 
+    #print finalOutput
 
     #Write list to CSV
     output_destination = sys.argv[1]+'/Output/'+sys.argv[2]
