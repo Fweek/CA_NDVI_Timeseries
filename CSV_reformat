@@ -75,8 +75,8 @@ for csvFilename in os.listdir('.'):
         #  sys.exit(0)
         dtStr = inputItem[0] #create new list of just 0 cell(date cell)
         #Parse out year, month, day. Ugly code but need to get this moving...
-        dtStr2 = dtStr.split('/') #split the date up by the dash (/)
-        mm, dd, yr = dtStr2[0], dtStr2[1], dtStr2[2] #create new variables for day, month, and year
+        dtStr2 = dtStr.split('-') #split the date up by the dash (-)
+        yr, mm, dd = dtStr2[0], dtStr2[1], dtStr2[2] #create new variables for day, month, and year
         #Reformat date
         dtNum = (datetime.datetime(int(yr), int(mm), int(dd)) - datetime.datetime(1980, 1, 1)).days
 
