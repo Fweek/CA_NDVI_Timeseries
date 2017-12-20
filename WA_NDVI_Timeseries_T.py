@@ -140,7 +140,22 @@ if vMode == 'y':
     print "Calculating field averages"
 
 #Apply an inner join to intersecting features.
-spatialJoined = ee.Join.inner({'field','image', None}).apply({fields, NDVI_IC,ee.Filter.intersects({'.geo', None, '.geo', None, 10})})
+# spatialJoined = ee.Join.inner({'field','image', None}).apply({fields, NDVI_IC,ee.Filter.intersects({'.geo', None, '.geo', None, 10})})
+
+spatialJoined = ee.Join.inner(
+    primaryKey='field',
+    secondaryKey='image'
+).apply(
+    primary=fields,
+    secondary=NDVI_IC,
+    condition=ee.Filter.intersects(
+        leftField='.geo',
+        rightValue=None,
+        rightField='.geo',
+        leftValue=None,
+        maxError=10
+    )
+)
 
 # Get the field averages
 means = spatialJoined.map(calculateMean)
