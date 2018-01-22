@@ -57,7 +57,7 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
                     
                   #Find the column
                   for col in range(5, 51):
-                    dateTemp = int(finalOutput[0, <unsigned int>col])   # make new date variable based on header
+                    dateTemp = finalOutput[0, <unsigned int>col]   # make new date variable based on header
                     dateTemp2 = dateTemp+8
 
                     if (date >= dateTemp) and (date < dateTemp2):
