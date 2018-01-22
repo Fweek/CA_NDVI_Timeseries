@@ -30,7 +30,7 @@ if not os.path.exists('Output_Combined'):
 filecount = len([f for f in os.listdir(sys.argv[1]) if os.path.isfile(f)])
 
 #Divide the count in half
-filecount_half = filecount/2
+filecount_half = int(filecount/2)
 
 #Take the first filename and parse it out
 files = os.listdir(sys.argv[1]) #create list of all the filenames in the directory
@@ -55,7 +55,7 @@ prefix = filename_split[0:sat_index]
 prefix_join = '_'.join(prefix)
 
 #Merge L7 and L8 files together while overwriting L7 values with L8 values if the L7 value is 0
-for i in int(filecount_half): #loop for each pair of landsat files
+for i in range(filecount_half-1): #loop for each pair of landsat files
     L7csv = numpy.genfromtxt(str(prefix_join)+'_L7'+str(sat_type_join)+'_'+str(offset_value)+".csv", delimiter= ",")
     L8csv = numpy.genfromtxt(str(prefix_join)+'_L8'+str(sat_type_join)+'_'+str(offset_value)+".csv", delimiter= ",")
     output = numpy.where(L8csv > 0, L8csv, L7csv)
