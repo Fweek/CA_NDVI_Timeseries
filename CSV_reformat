@@ -8,7 +8,7 @@
 
 import sys, os, os.path, csv, datetime, string, numpy, re
 from dateutil.parser import parse
-#import addDateNDVI
+import addDateNDVI
 
 #Error message: Missing arguments
 usage = "usage: python CSV_reformat.py <Directory path of input files> <year>\n" + \
@@ -20,8 +20,7 @@ if len(sys.argv) < 2:  # Number of arguments required
 bTime = datetime.datetime.now()
 
 #Set working directory to user input (directory path of input files)
-#os.chdir(sys.argv[1])
-os.chdir('C:\Users\Michael\Desktop\Test')
+os.chdir(sys.argv[1])
 
 #Make a new directory for the output files if it does not already exist
 if not os.path.exists('Output-Reformatted'):
