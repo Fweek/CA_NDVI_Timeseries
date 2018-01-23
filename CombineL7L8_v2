@@ -21,7 +21,7 @@ if not os.path.exists('Output_Combined'):
     os.makedirs('Output_Combined', )
 
 #Count how many files are in the directory. Half of them should be L7 and the other half L8
-filecount = len([f for f in os.listdir(str(sys.argv[1])+'/Output') if os.path.isfile(f)])
+filecount = len([f for f in os.listdir(sys.argv[1]) if os.path.isfile(f)])
 
 #Divide the count in half
 filecount_half = int(filecount/2)
