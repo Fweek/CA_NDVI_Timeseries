@@ -12,22 +12,20 @@ bTime = datetime.datetime.now()
 print "Combining files..."
 
 # Set working directory to user input (directory path of input files)
-#os.chdir(sys.argv[1])
-os.chdir('C:\Users\Michael\Desktop\Test\Output-Reformatted')
+os.chdir(sys.argv[1])
 
 #Make a new directory for the combined output files if it does not already exist
 if not os.path.exists('Output-Combined'):
     os.makedirs('Output-Combined', )
 
 #Count how many files are in the directory. Half of them should be L7 and the other half L8
-#filecount = len([f for f in os.listdir(sys.argv[1]) if os.path.isfile(f)])
-filecount = len([f for f in os.listdir('C:\Users\Michael\Desktop\Test\Output-Reformatted') if os.path.isfile(f)])
+filecount = len([f for f in os.listdir(sys.argv[1]) if os.path.isfile(f)])
+
 #Divide the count in half
 filecount_half = int(filecount/2)
 
 #Take the first filename and parse it out
-files = os.listdir('C:\Users\Michael\Desktop\Test\Output-Reformatted') #create list of all the filenames in the directory
-#files = os.listdir(sys.argv[1]) #create list of all the filenames in the directory
+files = os.listdir(sys.argv[1]) #create list of all the filenames in the directory
 filename = str(files[1]) #create string object of the first filename
 filename_split = filename.split('_') #split the filename string up by _
 split_length = len(filename_split) #count the number of splits
@@ -54,6 +52,6 @@ for i in range(filecount_half): #loop for each pair of landsat files
     L7csv = numpy.genfromtxt(str(prefix_join)+'_L7'+str(sat_type_join)+'_'+str(offset_value)+".csv", delimiter= ",")
     L8csv = numpy.genfromtxt(str(prefix_join)+'_L8'+str(sat_type_join)+'_'+str(offset_value)+".csv", delimiter= ",")
     output = numpy.where(L8csv > 0, L8csv, L7csv)
-    output_destination = 'C:/Users/Michael/Desktop/Test/Output-Reformatted'+'/Output-Combined/'+'Combined_'+output_prefix+'_L7L8_'+str(offset_value)+'.csv'
+    output_destination = sys.argv[1]+'/Output-Combined/'+'Combined_'+output_prefix+'_L7L8_'+str(offset_value)+'.csv'
     numpy.savetxt(output_destination, output, delimiter=",", fmt='%.3f')
     offset_value = offset_value+15000
