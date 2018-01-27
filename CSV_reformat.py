@@ -2,17 +2,20 @@
 # These input files:
 # 1) Must be placed within the same directory.
 # 2) Must be complementary meaning it must contain both Landsat 7 and Landsat 8 files
-# 3) Must be separated by satellite type i.e. Surface Reflectance (SR) andTop of Atmosphere (TOA) should not be placed within the same directory.
+# 3) Must be separated by satellite type i.e. Surface Reflectance (SR) and Top of Atmosphere (TOA) should not be placed within the same directory.
 # 4) Can have any number of columns but DATE, mean NDVI, and SIMSID must be in columns 1, 2, and 3 (column indices 0, 1, 2).
-# 5) Must have this filename structure: <prefix>_<start date>_<end date>_<satellite sensor>_<offset>.csv. For example, WA_Mean_2013-01-01_2013-12-31_L8SR_15000.csv
+# 5) Must have this filename structure: <prefix>_<start date>_<end date>_<satellite sensor>_<offset>.csv.
+#    Prefix can be anything but the last four groups must be in the format shown in the example below
+#    Example: WA_Mean_2013-01-01_2013-12-31_L8SR_15000.csv
 
 import sys, os, os.path, csv, datetime, string, numpy, re
 from dateutil.parser import parse
 import addDateNDVI
 
 #Error message: Missing arguments
-usage = "usage: python CSV_reformat.py <Directory path of input files> <year>\n" + \
-        "Reformats the input CSV files to match NEX files"
+usage = "Reformats the input CSV files to match NEX files\n" + \
+        "usage: python CSV_reformat.py <Directory path of input files> <year>"
+
 if len(sys.argv) < 2:  # Number of arguments required
     print usage
     sys.exit(1)
