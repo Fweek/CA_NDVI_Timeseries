@@ -2,7 +2,7 @@ import sys, os.path, datetime, numpy
 
 #Error message user receives if missing parameters
 usage = "Combines complementary Landsat7 and Landsat8 reformatted CSV files into one, prioritizing Landsat8 values\n" + \
-        "usage: python Combine.py <Directory path of input files>"
+        "usage: python Combine.py <Directory path of raw input files NOT reformatted files>"
 
 if len(sys.argv) < 1:  #Number of arguments required
     print usage
