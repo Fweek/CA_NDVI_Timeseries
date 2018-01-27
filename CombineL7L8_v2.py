@@ -1,3 +1,5 @@
+#This script combines the compplementary Landsat7 and Landsat8 reformatted CSV files into one. It will replace Landat7 values where Landsat8 values are higher.
+
 import sys, os.path, datetime, numpy
 
 #Error message user receives if missing parameters
@@ -13,11 +15,14 @@ bTime = datetime.datetime.now()
 print "Combining files..."
 
 #Set working directory to user input (directory path of input files)
-os.chdir(sys.argv[1]+'/Output-Reformatted')
+os.chdir(sys.argv[1])
 
 #Make a new directory for the combined output files if it does not already exist
-if not os.path.exists('Output-Combined'):
+if not os.path.exists('/Output-Combined'):
     os.makedirs('Output-Combined', )
+
+#Set working directory to directory of reformatted files
+os.chdir(sys.argv[1]+'/Output-Reformatted')
 
 #Count how many files are in the directory. There should be an even number of files. Half should be L7 and the other half L8
 files = [f for f in os.listdir(sys.argv[1]+'/Output-Reformatted') if os.path.isfile(f)] #select only files and exclude directories
@@ -53,6 +58,6 @@ for i in range(filecount_half): #loop for each pair of landsat files
     L7csv = numpy.genfromtxt(str(prefix_join)+'_L7'+str(sat_type_join)+'_'+str(offset_value)+".csv", delimiter= ",")
     L8csv = numpy.genfromtxt(str(prefix_join)+'_L8'+str(sat_type_join)+'_'+str(offset_value)+".csv", delimiter= ",")
     output = numpy.where(L8csv > 0, L8csv, L7csv)
-    output_destination = sys.argv[1]+'/Output-Reformatted'+'/Output-Combined/'+'Combined_'+output_prefix+'_L7L8_'+str(offset_value)+'.csv'
+    output_destination = sys.argv[1]+'/Output-Combined/'+'Combined_'+output_prefix+'_L7L8_'+str(offset_value)+'.csv'
     numpy.savetxt(output_destination, output, delimiter=",", fmt='%.3f')
     offset_value = offset_value+15000
