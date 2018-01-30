@@ -18,7 +18,7 @@ print "Combining files..."
 os.chdir(sys.argv[1])
 
 #Make a new directory for the combined output files if it does not already exist
-if not os.path.exists('/Output-Combined'):
+if not os.path.exists('Output-Combined'):
     os.makedirs('Output-Combined', )
 
 #Set working directory to directory of reformatted files
