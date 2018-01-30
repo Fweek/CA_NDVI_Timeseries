@@ -34,7 +34,7 @@ for csvFilename in os.listdir('.'):
     if not csvFilename.endswith('.csv'):
         continue  # skip non-csv files
 
-    print('Modifying ' + csvFilename + '...')
+    print('REFORMATTING ' + csvFilename + '...')
 
     #Open the file
     fPtr = open(csvFilename)
@@ -62,7 +62,7 @@ for csvFilename in os.listdir('.'):
     #Get all the unique simsids and count them. This will be the number of rows for our final table
     uniqueIds = numpy.unique(simsIds)  # count all the unique SIMS IDs in the subset list
     yDim = len(uniqueIds) + 1  # Make a new variable that is = to the # of unique IDs; adding 1 to account for new row header
-    print "Number of unique sims ids %d" % yDim
+    #print "Number of unique sims ids %d" % yDim
 
     #We will always have 51 columns. 5 extra + 46 timesteps
     xDim = 51
@@ -74,7 +74,7 @@ for csvFilename in os.listdir('.'):
     tempOut = numpy.ones(
         (len(input), 3)) * -9999.0  #create a temp output array with only 3 columns and fill all cells with -9999
 
-    print "Reformatting the array"
+    #print "Reformatting the array"
 
     #Function that checks if the input string is a DATE
     def is_date(string):
@@ -148,22 +148,22 @@ for csvFilename in os.listdir('.'):
     # Now we work on the header which is just a range of dates. This is only for 2016
     # Create the start date and the end date
     tStart = (datetime.datetime(int(sys.argv[2]), 01, 1) - datetime.datetime(1980, 1, 1)).days
-    print tStart
+    #print tStart
     tEnd = (datetime.datetime(int(sys.argv[2]), 12, 31) - datetime.datetime(1980, 1, 1)).days
-    print tEnd
+    #print tEnd
 
     # Now we'll fill in the dates inbetween
-    print "Populating the date"
+    #print "Populating the date"
     indx = 5  # We're going to skip the first 5 cells which is reserved for something else
     for i in range(tStart, tEnd, 8):  # starting at tStart add 8 until we get to tEnd
         finalOutput[0, indx] = i  # In the finalOutput list, fill in the specified cell with the new date
         indx += 1  # index increases incrementally each loop
 
-    print "Adding the uniqueIds"
+    #print "Adding the uniqueIds"
     finalOutput[1:yDim,
     0] = uniqueIds  # Now that the header row is all filled in, we're fill the header column with all the SIMs IDs
 
-    print "Starting to populate array"  # Now we need to populate the rest of the table with NDVI
+    #print "Starting to populate array"  # Now we need to populate the rest of the table with NDVI
     finalOutput = addDateNDVI.populate(yDim, finalOutput, tempOut)
 
     # print finalOutput
@@ -172,6 +172,6 @@ for csvFilename in os.listdir('.'):
     output_destination = sys.argv[1] + '/Output-Reformatted/' + 'Reformatted_' + csvFilename
     numpy.savetxt(output_destination, finalOutput, delimiter=",", fmt='%.3f')
 
-print "Finished reformatting files."
+print "REFORMATTING COMPLETE"
 print "Start time: ", bTime
 print "End time: ", datetime.datetime.now()
