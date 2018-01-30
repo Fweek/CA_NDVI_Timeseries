@@ -12,7 +12,8 @@ if len(sys.argv) < 1:  #Number of arguments required
 
 #Saves start date and time of script. Will be printed when script finishes.
 bTime = datetime.datetime.now()
-print "Combining files..."
+print " "
+print "COMBINING FILES..."
 
 #Set working directory to user input (directory path of input files)
 os.chdir(sys.argv[1])
@@ -62,3 +63,7 @@ for i in range(filecount_half): #loop for each pair of landsat files
     numpy.savetxt(output_destination, output, delimiter=",", fmt='%.3f')
     print 'Combined ' + str(offset_value)
     offset_value = offset_value+15000
+
+print "COMBINING COMPLETE"
+print "Start time: ", bTime
+print "End time: ", datetime.datetime.now()
