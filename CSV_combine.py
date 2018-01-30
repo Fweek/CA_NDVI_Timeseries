@@ -25,7 +25,7 @@ if not os.path.exists('Output-Combined'):
 os.chdir(sys.argv[1]+'/Output-Reformatted')
 
 #Count how many files are in the directory. There should be an even number of files. Half should be L7 and the other half L8
-files = [f for f in os.listdir(sys.argv[1]+'/Output-Reformatted') if os.path.isfile(f)] #select only files and exclude directories
+files = [f for f in sorted(os.listdir(sys.argv[1]+'/Output-Reformatted')) if os.path.isfile(f)] #select only files and exclude directories
 filecount = len(files) #count files
 
 #Divide the count in half
@@ -60,4 +60,5 @@ for i in range(filecount_half): #loop for each pair of landsat files
     output = numpy.where(L8csv > 0, L8csv, L7csv)
     output_destination = sys.argv[1]+'/Output-Combined/'+'Combined_'+output_prefix+'_L7L8_'+str(offset_value)+'.csv'
     numpy.savetxt(output_destination, output, delimiter=",", fmt='%.3f')
+    print 'Combined ' + str(offset_value)
     offset_value = offset_value+15000
