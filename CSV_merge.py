@@ -22,7 +22,7 @@ if not os.path.exists('Output-Merged'):
 os.chdir(sys.argv[1]+'/Output-Classified')
 
 ##files = [f for f in os.listdir(sys.argv[1]+'/Output-Reformatted') if os.path.isfile(f)] #select only files and exclude directories
-files = [f for f in os.listdir(sys.argv[1]+'/Output-Classified') if os.path.isfile(f)] #select only files and exclude directories
+files = [f for f in sorted(os.listdir(sys.argv[1]+'/Output-Classified')) if os.path.isfile(f)] #select only files and exclude directories
 filename = str(files[0]) #create string object of the first file's filename
 filename_split = filename.split('_') #split the filename string up by _
 filename_length = len(filename_split)
