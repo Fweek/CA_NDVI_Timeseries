@@ -15,24 +15,27 @@ bTime = datetime.datetime.now()
 print "Combining files..."
 
 #Set working directory to user input (directory path of input files)
-os.chdir(sys.argv[1])
+######os.chdir(sys.argv[1])
+os.chdir('C:\Users\Michael\Desktop\Test')
 
 #Make a new directory for the combined output files if it does not already exist
 if not os.path.exists('/Output-Combined'):
     os.makedirs('Output-Combined', )
 
 #Set working directory to directory of reformatted files
-os.chdir(sys.argv[1]+'/Output-Reformatted')
+######os.chdir(sys.argv[1]+'/Output-Reformatted')
+os.chdir('C:\Users\Michael\Desktop\Test'+'/Output-Reformatted')
 
 #Count how many files are in the directory. There should be an even number of files. Half should be L7 and the other half L8
-files = [f for f in os.listdir(sys.argv[1]+'/Output-Reformatted') if os.path.isfile(f)] #select only files and exclude directories
+####files = [f for f in os.listdir(sys.argv[1]+'/Output-Reformatted') if os.path.isfile(f)] #select only files and exclude directories
+files = [f for f in os.listdir('C:\Users\Michael\Desktop\Test'+'/Output-Reformatted') if os.path.isfile(f)] #select only files and exclude directories
 filecount = len(files) #count files
 
 #Divide the count in half
 filecount_half = int(filecount/2)
 
 #Take the first filename and parse it out
-filename = str(files[1]) #create string object of the first file's filename
+filename = str(files[0]) #create string object of the first file's filename
 filename_split = filename.split('_') #split the filename string up by _
 split_length = len(filename_split) #count the number of splits
 
