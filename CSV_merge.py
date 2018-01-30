@@ -1,7 +1,7 @@
 # This script merges multiple CSV files into one and removes extra headers.
 # Then it double checks if extra headers exist
 
-import glob, os, csv, sys
+import glob, os, csv, sys, datetime
 
 #Error message user receives if missing parameters
 usage = "Merges all the individual CSV files into one\n" + \
@@ -30,7 +30,8 @@ output_prefix = '_'.join(filename_split[1:filename_length-1])
 
 CSV_files = glob.glob("*.csv")
 
-print "Starting merge"
+print ' '
+print "STARTING MERGE..."
 header_saved = False
 with open('temp.csv','wb') as fout:
     for filename in CSV_files:
@@ -42,10 +43,9 @@ with open('temp.csv','wb') as fout:
                 header_saved = True
             for line in fin:
                 fout.write(line)
-print "done"
 
 
-print "double-checking headers were deleted"
+print "Double-checking for duplicate headers"
 with open('temp.csv', 'rb') as inp, open(sys.argv[1]+'\Output-Merged\Merged_'+output_prefix+'.csv', 'wb') as out:
     reader = csv.reader(inp)
     writer = csv.writer(out)
@@ -55,6 +55,8 @@ with open('temp.csv', 'rb') as inp, open(sys.argv[1]+'\Output-Merged\Merged_'+ou
     for row in csv.reader(inp):
         if row[1] != "date":
             writer.writerow(row)
-print "done"
+print 'MERGING COMPLETE'
+print "Start time: ", bTime
+print "End time: ", datetime.datetime.now()
 
 os.remove('temp.csv')
