@@ -11,6 +11,9 @@ if len(sys.argv) <1:  #Number of arguments required
     print usage
     sys.exit(1)
 
+#Saves start date and time of script. Will be printed when script finishes.
+bTime = datetime.datetime.now()
+
 #Set working directory to user input (directory path of input files)
 os.chdir(sys.argv[1])
 
