@@ -5,7 +5,7 @@ import glob, os, csv, sys, datetime
 
 #Error message user receives if missing parameters
 usage = "Merges all the individual CSV files into one\n" + \
-        "usage: Merge_CSV.py <File directory of all CSVs> <output filename: merged.csv>"
+        "usage: Merge_CSV.py <File directory of all CSVs>"
 
 if len(sys.argv) <1:  #Number of arguments required
     print usage
