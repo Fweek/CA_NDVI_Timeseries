@@ -45,11 +45,10 @@ with open('temp.csv','wb') as fout:
                 header_saved = True
             for line in fin:
                 fout.write(line)
-print "done"
 
 
 print "Double-checking for duplicate headers"
-with open('temp.csv', 'rb') as inp, open(sys.argv[1]+'\Output-Merged\Merged_'+output_prefix+'.csv', 'wb') as out:
+with open('temp.csv', 'rb') as inp, open(sys.argv[1]+'/Output-Merged/Merged_'+output_prefix+'.csv', 'wb') as out:
     reader = csv.reader(inp)
     writer = csv.writer(out)
     headers = next(reader, None)  # returns the headers or `None` if the input is empty
@@ -58,7 +57,6 @@ with open('temp.csv', 'rb') as inp, open(sys.argv[1]+'\Output-Merged\Merged_'+ou
     for row in csv.reader(inp):
         if row[1] != "date":
             writer.writerow(row)
-print "done"
 
 os.remove('temp.csv')
 
