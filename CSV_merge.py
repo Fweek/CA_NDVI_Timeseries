@@ -24,7 +24,6 @@ if not os.path.exists('Output-Merged'):
 #Set working directory to directory of reformatted files
 os.chdir(sys.argv[1]+'/Output-Classified')
 
-##files = [f for f in os.listdir(sys.argv[1]+'/Output-Reformatted') if os.path.isfile(f)] #select only files and exclude directories
 files = [f for f in sorted(os.listdir(sys.argv[1]+'/Output-Classified')) if os.path.isfile(f)] #select only files and exclude directories
 filename = str(files[0]) #create string object of the first file's filename
 filename_split = filename.split('_') #split the filename string up by _
@@ -46,6 +45,7 @@ with open('temp.csv','wb') as fout:
                 header_saved = True
             for line in fin:
                 fout.write(line)
+print "done"
 
 
 print "Double-checking for duplicate headers"
@@ -58,8 +58,10 @@ with open('temp.csv', 'rb') as inp, open(sys.argv[1]+'\Output-Merged\Merged_'+ou
     for row in csv.reader(inp):
         if row[1] != "date":
             writer.writerow(row)
+print "done"
+
+os.remove('temp.csv')
+
 print 'MERGING COMPLETE'
 print "Start time: ", bTime
 print "End time: ", datetime.datetime.now()
-
-os.remove('temp.csv')
