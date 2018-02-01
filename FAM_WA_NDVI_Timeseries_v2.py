@@ -3,12 +3,13 @@ import ee, datetime, time, sys
 
 ee.Initialize()  #Initialize the Earth Engine object, using the authentication credentials.
 
-#Sample command line call:
-#python WA_NDVI_Timeseries_T.py L7SR test 2016-01-01 2016-12-31 10 n
-
 #Get the command line arguments
-usage = "usage: WA_NDVI_Timeseries.py <Satellite: L7SR, L8SR, L7TOA, L8TOA, Sent2a> <outputNamePrefix> <startDate> <endDate> <offset: increments of 15000> <verbose(y/n)>\n" + \
+usage = "usage: WA_NDVI_Timeseries.py <Satellite: L7SR, L8SR, L7TOA, L8TOA, Sent2a> <outputNamePrefix> <startDate> <endDate> <verbose(y/n)>\n" + \
         "Calculates field averages limited to number of polygons and within the date(YYYY-MM-DD format) range specified"
+
+#Sample command line call:
+#python WA_NDVI_Timeseries_T2.py L7SR WA_NDVI_timeseries 2015-01-01 2015-12-31 0 n
+
 if len(sys.argv) < 6:
     print usage
     sys.exit(1)
@@ -105,88 +106,85 @@ if vMode == 'y':
     print "Verbose mode on"
 
 # --------------------------------------------------------------------------------------------------
-#Subset parameters
-export_count = 15000
 export_offset = int(sys.argv[5])
 
-#Subset all fields
-fields = allfields.toList(export_count, export_offset)
-fields = ee.FeatureCollection(fields)
+while export_offset < allfields_count: #while the export_offset counter is less than the total number of fields repeat the following code:
+    #Subset parameters
+    export_count = 15000
 
-#Set temporal and spatial parameters
-tStart = sys.argv[3]  # '2016-01-01'
-tEnd = sys.argv[4]  # '2016-12-31'
+    #Subset all fields
+    fields = allfields.toList(export_count, export_offset)
+    fields = ee.FeatureCollection(fields)
 
-#Retrieve Image collection then filter,clip,calculate NDVI and filter clouds
-#Here we're filtering by the bounding block instead of by the fields
-if vMode == 'y':
-    print "Loading and filtering image collection using %s to %s" % (tStart, tEnd)
-if sys.argv[1] == 'L7SR':
-    L7_IC = ee.ImageCollection("LANDSAT/LE7_SR") #Landsat7 Surface Reflectance Image Collection
-    NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_L7).select('ndvi')
-elif sys.argv[1] == 'L7TOA':
-    L7_IC = ee.ImageCollection("LANDSAT/LE7_L1T_TOA_FMASK")
-    NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_L7_TOA).select('ndvi')
-elif sys.argv[1] == 'L8SR':
-    L8_IC = ee.ImageCollection("LANDSAT/LC8_SR")
-    NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_L8).select('ndvi')
-elif sys.argv[1] == 'L8TOA':
-    L8_IC = ee.ImageCollection("LANDSAT/LC8_L1T_TOA_FMASK")
-    NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_L8_TOA).select('ndvi')
-elif sys.argv[1] == 'Sent2A':
-    Sent2A_IC = ee.ImageCollection("COPERNICUS/S2")
-    NDVI_IC = Sent2A_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_Sent2A).select('ndvi')
+    #Set temporal and spatial parameters
+    tStart = sys.argv[3]  # '2016-01-01'
+    tEnd = sys.argv[4]  # '2016-12-31'
+
+    #Retrieve Image collection then filter,clip,calculate NDVI and filter clouds
+    #Here we're filtering by the bounding block instead of by the fields
+    if vMode == 'y':
+        print "Loading and filtering image collection using %s to %s" % (tStart, tEnd)
+    if sys.argv[1] == 'L7SR':
+        L7_IC = ee.ImageCollection("LANDSAT/LE7_SR") #Landsat7 Surface Reflectance Image Collection
+        NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_L7).select('ndvi')
+    elif sys.argv[1] == 'L7TOA':
+        L7_IC = ee.ImageCollection("LANDSAT/LE7_L1T_TOA_FMASK")
+        NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_L7_TOA).select('ndvi')
+    elif sys.argv[1] == 'L8SR':
+        L8_IC = ee.ImageCollection("LANDSAT/LC8_SR")
+        NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_L8).select('ndvi')
+    elif sys.argv[1] == 'L8TOA':
+        L8_IC = ee.ImageCollection("LANDSAT/LC8_L1T_TOA_FMASK")
+        NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_L8_TOA).select('ndvi')
+    elif sys.argv[1] == 'Sent2A':
+        Sent2A_IC = ee.ImageCollection("COPERNICUS/S2")
+        NDVI_IC = Sent2A_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_Sent2A).select('ndvi')
 
 
-if vMode == 'y':
-    print "Calculating field averages"
+    if vMode == 'y':
+        print "Calculating field averages"
 
-#Apply an inner join to intersecting features.
-spatialJoined = ee.Join.inner(
-    primaryKey='field',
-    secondaryKey='image'
-).apply(
-    primary=fields,
-    secondary=NDVI_IC,
-    condition=ee.Filter.intersects(
-        leftField='.geo',
-        rightValue=None,
-        rightField='.geo',
-        leftValue=None,
-        maxError=10
+    #Apply an inner join to intersecting features.
+    spatialJoined = ee.Join.inner(
+        primaryKey='field',
+        secondaryKey='image'
+    ).apply(
+        primary=fields,
+        secondary=NDVI_IC,
+        condition=ee.Filter.intersects(
+            leftField='.geo',
+            rightValue=None,
+            rightField='.geo',
+            leftValue=None,
+            maxError=10
+        )
     )
-)
 
-#Get the field averages
-means = spatialJoined.map(calculateMean)
+    #Get the field averages
+    means = spatialJoined.map(calculateMean)
 
-#Remove geometry
-noGeo = means.map(removeFeatureGeometry)
+    #Remove geometry
+    noGeo = means.map(removeFeatureGeometry)
 
-#Add dummy features
-finalOutput = addDummyFeature(noGeo)
+    #Add dummy features
+    finalOutput = addDummyFeature(noGeo)
 
-fn = '%s_%s_%s' % ((sys.argv[2]), (export_offset+15000), (sys.argv[3]))
-
-
-#EXPORT to CSV to Google Drive
-#Create export parameters
-taskParams = {
-    'driveFolder': 'Python EE Exports',
-    'driveFileNamePrefix': fn,
-    'fileFormat': 'CSV'
-}
-
-state3 = str(" u'FAILED'")
-repeat = 15000 #counter
+    fn = '%s_%s_%s_%s_%s' % ((sys.argv[2]), (sys.argv[3]), (sys.argv[4]), (sys.argv[1]), (export_offset+15000))
 
 
-#If the export status is FAILED and the repeat counter is less than 5 then restart the export process
-while state3 == str(" u'FAILED'") and repeat < allfields_count:
-    # Status updates for export
-    MyTry = ee.batch.Export.table(finalOutput, str(sys.argv[2]), taskParams)
+    #EXPORT to CSV to Google Drive
+    #Create export parameters
+    taskParams = {
+        'driveFolder': 'Python EE Exports',
+        'driveFileNamePrefix': fn,
+        'fileFormat': 'CSV'
+    }
+
+    #Export timeseries as CSV to Google Drive
+    MyTry = ee.batch.Export.table(finalOutput, str(sys.argv[2])+"_"+str(export_offset+15000), taskParams)
     MyTry.start()
 
+    #Pause until export is finished
     state = MyTry.status()['state']
     counter = 0
     while state in ['READY', 'RUNNING']:
@@ -196,16 +194,11 @@ while state3 == str(" u'FAILED'") and repeat < allfields_count:
         state = MyTry.status()['state']
         counter += 1
 
-    print 'Done.', MyTry.status()
-    Script_status = MyTry.status()
+    #Update the counter
+    export_offset += 15000
+    print "Repeat code for fields:", export_offset-15000, "to", export_offset
 
-    script_split = str(Script_status).split(',')  #parsing the export status for the completed or failed status
-    state = script_split[5]
-    state2 = state.split(':')
-    state3 = str(state2[1])
+    print "Start time: ", bTime
+    print "End time: ", datetime.datetime.now()
 
-    repeat += 15000
-    print "Repeat code for fields:", repeat-15000, "to", repeat
-
-print "Start time: ", bTime
-print "End time: ", datetime.datetime.now()
+print "Finished"
