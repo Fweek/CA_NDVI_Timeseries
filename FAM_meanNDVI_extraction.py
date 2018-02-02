@@ -1,25 +1,28 @@
-#Import the Earth Engine Python Package
+#Import packages
 import ee, datetime, time, sys
 
-ee.Initialize()  #Initialize the Earth Engine object, using the authentication credentials.
+#Initialize the Earth Engine object, using the authentication credentials.
+ee.Initialize()
 
 #Get the command line arguments
-usage = "usage: WA_NDVI_Timeseries.py <basemap> <satellite> <outputNamePrefix> <startDate> <endDate> <verbose(y/n)>\n" + \
+usage = "usage: FAM_meanNDVI_extraction.py <basemap> <satellite> <outputNamePrefix> <startDate> <endDate> <verbose(y/n)>\n" + \
         "Calculates field averages limited to number of polygons and within the date(YYYY-MM-DD format) range specified"
 
-#Sample command line call:
-#python WA_NDVI_Timeseries_T2.py users/mhang/base13-15_wa_poly_slim L7SR WA_NDVI_timeseries 2015-01-01 2015-12-31 0 n
+#Sample command line call: python FAM_meanNDVI_extraction.py users/mhang/base13-15_wa_poly_slim L7SR CA_NDVI_timeseries 2015-01-01 2015-12-31 0 n
 
 if len(sys.argv) < 7:
     print usage
     sys.exit(1)
 
+#Capture start time
 bTime = datetime.datetime.now()
+
 
 #---------------------------------------------------------------------------------------------------
 #IMPORT Earth Engine objects
 allfields = ee.FeatureCollection(str(sys.argv[1]))
 allfields_count = allfields.size()
+
 
 #---------------------------------------------------------------------------------------------------
 #FUNCTIONS
@@ -105,7 +108,8 @@ vMode = sys.argv[7]
 if vMode == 'y':
     print "Verbose mode on"
 
-# --------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------
+#EXTRACTION
 export_offset = int(sys.argv[6])
 
 while export_offset < allfields_count: #while the export_offset counter is less than the total number of fields repeat the following code:
