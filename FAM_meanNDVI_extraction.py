@@ -1,20 +1,22 @@
+#This script extracts mean NDVI timeseries data from Google Earth Engine of a given set of farm field polygons and exports it to Google Drive.
+
 #Import packages
 import ee, datetime, time, sys
 
 #Initialize the Earth Engine object, using the authentication credentials.
 ee.Initialize()
 
-#Get the command line arguments
-usage = "usage: FAM_meanNDVI_extraction.py <basemap> <satellite> <outputNamePrefix> <startDate> <endDate> <verbose(y/n)>\n" + \
-        "Calculates field averages limited to number of polygons and within the date(YYYY-MM-DD format) range specified"
+#Error message user receives if missing parameters
+usage = "Calculates field averages limited to number of polygons and within the date(YYYY-MM-DD format) range specified\n" + \
+        "usage: FAM_meanNDVI_extraction.py <basemap> <satellite> <outputNamePrefix> <startDate> <endDate> <verbose(y/n)>"
 
 #Sample command line call: python FAM_meanNDVI_extraction.py users/mhang/base13-15_wa_poly_slim L7SR CA_NDVI_timeseries 2015-01-01 2015-12-31 0 n
 
-if len(sys.argv) < 7:
+if len(sys.argv) < 7:  # Number of arguments required
     print usage
     sys.exit(1)
 
-#Capture start time
+#Saves start date and time of script. Will be printed when script finishes.
 bTime = datetime.datetime.now()
 
 
@@ -104,17 +106,19 @@ def  addDummyFeature(fc):
   return dummy.merge(fc)
 
 
+#Turns on verbose mode
 vMode = sys.argv[7]
 if vMode == 'y':
     print "Verbose mode on"
 
+
 #---------------------------------------------------------------------------------------------------
 #EXTRACTION
-export_offset = int(sys.argv[6])
+export_offset = int(sys.argv[6]) #Indicates which field to start with. Should be multiples of 15000 starting with 0 if running script for the first time
 
 while export_offset < allfields_count: #while the export_offset counter is less than the total number of fields repeat the following code:
     #Subset parameters
-    export_count = 15000
+    export_count = 15000 #Maximum number of fields to extract
 
     #Subset all fields
     fields = allfields.toList(export_count, export_offset)
@@ -124,24 +128,23 @@ while export_offset < allfields_count: #while the export_offset counter is less 
     tStart = sys.argv[4]  # '2016-01-01'
     tEnd = sys.argv[5]  # '2016-12-31'
 
-    #Retrieve Image collection then filter,clip,calculate NDVI and filter clouds
-    #Here we're filtering by the bounding block instead of by the fields
+    #Retrieve Image collection then filter, clip, calculate NDVI, and filter clouds
     if vMode == 'y':
         print "Loading and filtering image collection using %s to %s" % (tStart, tEnd)
     if sys.argv[2] == 'L7SR':
         L7_IC = ee.ImageCollection("LANDSAT/LE7_SR") #Landsat7 Surface Reflectance Image Collection
         NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_L7).select('ndvi')
     elif sys.argv[2] == 'L7TOA':
-        L7_IC = ee.ImageCollection("LANDSAT/LE7_L1T_TOA_FMASK")
+        L7_IC = ee.ImageCollection("LANDSAT/LE7_L1T_TOA_FMASK") #Landsat7 Top-of-Atmosphere Reflectance (Orthorectified) with Fmask Image Collection
         NDVI_IC = L7_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_L7_TOA).select('ndvi')
     elif sys.argv[2] == 'L8SR':
-        L8_IC = ee.ImageCollection("LANDSAT/LC8_SR")
+        L8_IC = ee.ImageCollection("LANDSAT/LC8_SR") #Landsat8 Surface Reflectance Image Collection
         NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_L8).select('ndvi')
     elif sys.argv[2] == 'L8TOA':
-        L8_IC = ee.ImageCollection("LANDSAT/LC8_L1T_TOA_FMASK")
+        L8_IC = ee.ImageCollection("LANDSAT/LC8_L1T_TOA_FMASK") #Landsat 8 Top-of-Atmosphere Reflectance (Orthorectified) with Fmask Collection
         NDVI_IC = L8_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_L8_TOA).select('ndvi')
     elif sys.argv[2] == 'Sent2A':
-        Sent2A_IC = ee.ImageCollection("COPERNICUS/S2")
+        Sent2A_IC = ee.ImageCollection("COPERNICUS/S2") #Sentinel-2 MSI: MultiSpectral Instrument, Level-1C
         NDVI_IC = Sent2A_IC.filterDate(tStart, tEnd).filterBounds(fields).map(calculateNDVI_Sent2A).select('ndvi')
 
 
