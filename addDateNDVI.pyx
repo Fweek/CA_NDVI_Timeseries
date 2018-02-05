@@ -23,12 +23,11 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
     cdef int cnt3 = 0
     cdef int cnt4 = 0
     cdef int cnt5 = 0
-    
-    print yDim
-    print jDim
+
+    #print yDim
+    #print jDim
 
     for row in range(1,yDim): # for each row in the range of SIMs IDs (~300000)
-        print '{0}\r'.format(row),
         simsId = finalOutput[<unsigned int>row, 0] # create variable called simsId, set it equal to the simsId in the [row, 0] position
 
         for j in range(jPrev,jDim):#tempOut: # then in a different list
@@ -49,12 +48,12 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
                 date = tempOut[<unsigned int>j,1]  # create variables for each column
                 ndvi = tempOut[<unsigned int>j,2]
                 cnt3 += 1
-                
+
                 #If it's no data then move on to next row
                 if ndvi > -1.0:
                   #print date, ndvi
                   cnt4 += 1
-                    
+
                   #Find the column
                   for col in range(5, 51):
                     dateTemp = finalOutput[0, <unsigned int>col]   # make new date variable based on header
@@ -64,10 +63,10 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
                         #print row, col, ndvi
                         finalOutput[<unsigned int>row, <unsigned int>col] = ndvi
                         cnt5 += 1
-      
-    print "Count1", cnt1
-    print "Count2", cnt2
-    print "Count3", cnt3
-    print "Count4", cnt4
-    print "Count5", cnt5
+
+    #print "Count1", cnt1
+    #print "Count2", cnt2
+    #print "Count3", cnt3
+    #print "Count4", cnt4
+    #print "Count5", cnt5
     return finalOutput
