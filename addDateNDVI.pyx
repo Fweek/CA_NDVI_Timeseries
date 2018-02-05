@@ -24,8 +24,8 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
     cdef int cnt4 = 0
     cdef int cnt5 = 0
     
-    #print yDim
-    #print jDim
+    print yDim
+    print jDim
 
     for row in range(1,yDim): # for each row in the range of SIMs IDs (~300000)
         print '{0}\r'.format(row),
@@ -65,9 +65,9 @@ def populate (int yDim, np.ndarray[np.float_t, ndim=2] finalOutput, np.ndarray[n
                         finalOutput[<unsigned int>row, <unsigned int>col] = ndvi
                         cnt5 += 1
       
-    #print "Count1", cnt1
-    #print "Count2", cnt2
-    #print "Count3", cnt3
-    #print "Count4", cnt4
-    #print "Count5", cnt5
+    print "Count1", cnt1
+    print "Count2", cnt2
+    print "Count3", cnt3
+    print "Count4", cnt4
+    print "Count5", cnt5
     return finalOutput
