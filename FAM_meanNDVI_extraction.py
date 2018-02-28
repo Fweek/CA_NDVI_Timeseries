@@ -17,10 +17,6 @@ if len(sys.argv) < 7:  # Number of arguments required
     print usage
     sys.exit(1)
 
-#Saves start date and time of script. Will be printed when script finishes.
-bTime = datetime.datetime.now()
-
-
 #---------------------------------------------------------------------------------------------------
 #IMPORT Earth Engine objects
 allfields = ee.FeatureCollection(str(sys.argv[1]))
@@ -33,7 +29,7 @@ allfields_count = allfields.size()
 def calculateNDVI_L7(image):
     ndvi = image.normalizedDifference(['B4', 'B3']).rename('ndvi')
     #Filter the clouds
-    ndvi = ndvi.updateMask(image.select('cfmask').eq(0))
+    ndvi = ndvi.updateMask(image.select('pixel_qa').bitwiseAnd(2).neq(0));
     return image.addBands(ndvi)
 
 
@@ -49,7 +45,7 @@ def calculateNDVI_L7_TOA(image):
 def calculateNDVI_L8(image):
     ndvi = image.normalizedDifference(['B5', 'B4']).rename('ndvi')
     #Filter the clouds
-    ndvi = ndvi.updateMask(image.select('cfmask').eq(0))
+    ndvi = ndvi.updateMask(image.select('pixel_qa').bitwiseAnd(2).neq(0));
     return image.addBands(ndvi)
 
 
@@ -100,7 +96,7 @@ def removeFeatureGeometry(feature):
 def  addDummyFeature(fc):
   dummy = ee.FeatureCollection(
     ee.Feature(None, {'image_time_start_string': 0,
-                      'sims_id': 0,
+                      'simsid': 0,
                       'ndvi': 0
                       })
   )
@@ -118,6 +114,9 @@ if vMode == 'y':
 export_offset = int(sys.argv[6]) #Indicates which field to start with. Should be multiples of 15000 starting with 0 if running script for the first time
 
 while export_offset < allfields_count: #while the export_offset counter is less than the total number of fields repeat the following code:
+    # Saves start date and time of script. Will be printed when script finishes.
+    bTime = datetime.datetime.now()
+
     #Subset parameters
     export_count = 15000 #Maximum number of fields to extract
 
@@ -189,7 +188,7 @@ while export_offset < allfields_count: #while the export_offset counter is less 
     }
 
     #Export timeseries as CSV to Google Drive
-    MyTry = ee.batch.Export.table(finalOutput, str(sys.argv[3])+"_"+str(sys.argv[2])+"_"+str(export_offset+15000), taskParams)
+    MyTry = ee.batch.Export.table(finalOutput, str(sys.argv[3])+"_"+str(sys.argv[2])+"_"+str(sys.argv[4])+"_"+str(export_offset+15000), taskParams)
     MyTry.start()
 
     #Pause until export is finished
@@ -204,9 +203,9 @@ while export_offset < allfields_count: #while the export_offset counter is less 
 
     #Update the counter
     export_offset += 15000
-    print "Repeat code for fields:", export_offset-15000, "to", export_offset
+    print "Repeat code for fields: " + str(export_offset-15000) + " to " + str(export_offset)
 
-    print "Start time: ", bTime
-    print "End time: ", datetime.datetime.now()
+    print "Start time: " + str(bTime)
+    print "End time: " + str(datetime.datetime.now())
 
 print "Finished"
